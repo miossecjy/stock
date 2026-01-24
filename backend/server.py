@@ -634,7 +634,8 @@ def get_popular_stocks(query: str = ""):
 # ============ Portfolio Summary ============
 
 @api_router.get("/portfolio/summary")
-async def get_portfolio_summary(current_user: dict = Depends(get_current_user)):
+async def get_portfolio_summary(current_user: dict = Depends(get_current_user), display_currency: str = "USD"):
+    """Get portfolio summary with optional currency conversion"""
     holdings = await db.holdings.find({"user_id": current_user["id"]}, {"_id": 0}).to_list(1000)
     
     if not holdings:
@@ -644,7 +645,8 @@ async def get_portfolio_summary(current_user: dict = Depends(get_current_user)):
             "total_gain_loss": 0,
             "total_gain_loss_percent": 0,
             "holdings_count": 0,
-            "holdings": []
+            "holdings": [],
+            "display_currency": display_currency
         }
     
     # Get current prices for all holdings
@@ -653,8 +655,11 @@ async def get_portfolio_summary(current_user: dict = Depends(get_current_user)):
     for symbol in symbols:
         quotes[symbol] = await fetch_stock_quote(symbol)
     
-    total_value = 0
-    total_cost = 0
+    # Fetch exchange rates for currency conversion
+    exchange_rates = await fetch_exchange_rates("USD")
+    
+    total_value_converted = 0
+    total_cost_converted = 0
     holdings_with_prices = []
     
     for holding in holdings:
@@ -665,30 +670,52 @@ async def get_portfolio_summary(current_user: dict = Depends(get_current_user)):
         gain_loss = market_value - cost_basis
         gain_loss_percent = ((current_price - holding["buy_price"]) / holding["buy_price"] * 100) if holding["buy_price"] > 0 else 0
         
-        total_value += market_value
-        total_cost += cost_basis
+        # Get original currency and convert to display currency
+        original_currency = get_currency_from_symbol(holding["symbol"])
+        
+        # Convert to USD first (as base), then to display currency
+        if original_currency != "USD":
+            # Get rate from original currency to USD
+            original_to_usd = 1 / exchange_rates.get(original_currency, 1.0)
+            market_value_usd = market_value * original_to_usd
+            cost_basis_usd = cost_basis * original_to_usd
+        else:
+            market_value_usd = market_value
+            cost_basis_usd = cost_basis
+        
+        # Convert from USD to display currency
+        usd_to_display = exchange_rates.get(display_currency, 1.0)
+        market_value_display = market_value_usd * usd_to_display
+        cost_basis_display = cost_basis_usd * usd_to_display
+        
+        total_value_converted += market_value_display
+        total_cost_converted += cost_basis_display
         
         holdings_with_prices.append({
             **holding,
             "current_price": current_price,
             "market_value": round(market_value, 2),
+            "market_value_converted": round(market_value_display, 2),
             "cost_basis": round(cost_basis, 2),
+            "cost_basis_converted": round(cost_basis_display, 2),
             "gain_loss": round(gain_loss, 2),
             "gain_loss_percent": round(gain_loss_percent, 2),
             "day_change": quote.get("change", 0),
-            "day_change_percent": float(quote.get("change_percent", "0"))
+            "day_change_percent": float(quote.get("change_percent", "0")),
+            "original_currency": original_currency
         })
     
-    total_gain_loss = total_value - total_cost
-    total_gain_loss_percent = ((total_value - total_cost) / total_cost * 100) if total_cost > 0 else 0
+    total_gain_loss = total_value_converted - total_cost_converted
+    total_gain_loss_percent = ((total_value_converted - total_cost_converted) / total_cost_converted * 100) if total_cost_converted > 0 else 0
     
     return {
-        "total_value": round(total_value, 2),
-        "total_cost": round(total_cost, 2),
+        "total_value": round(total_value_converted, 2),
+        "total_cost": round(total_cost_converted, 2),
         "total_gain_loss": round(total_gain_loss, 2),
         "total_gain_loss_percent": round(total_gain_loss_percent, 2),
         "holdings_count": len(holdings),
-        "holdings": holdings_with_prices
+        "holdings": holdings_with_prices,
+        "display_currency": display_currency
     }
 
 # ============ Crypto Data (CoinGecko) ============
