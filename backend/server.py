@@ -128,6 +128,30 @@ class CryptoWatchlistResponse(BaseModel):
     user_id: str
     added_at: str
 
+# ============ Price Alert Models ============
+
+class PriceAlertCreate(BaseModel):
+    asset_type: str  # "stock" or "crypto"
+    symbol: str
+    name: str
+    target_price: float
+    condition: str  # "above" or "below"
+    coin_id: Optional[str] = None  # For crypto only
+
+class PriceAlertResponse(BaseModel):
+    id: str
+    asset_type: str
+    symbol: str
+    name: str
+    target_price: float
+    condition: str
+    coin_id: Optional[str] = None
+    current_price: Optional[float] = None
+    triggered: bool
+    triggered_at: Optional[str] = None
+    user_id: str
+    created_at: str
+
 # ============ Auth Helpers ============
 
 def hash_password(password: str) -> str:
