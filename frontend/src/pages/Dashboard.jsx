@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from "react";
 import { Link } from "react-router-dom";
-import { getPortfolioSummary, getSupportedCurrencies } from "../lib/api";
+import { getPortfolioSummary, getSupportedCurrencies, getCryptoPortfolioSummary } from "../lib/api";
 import { Card, CardContent, CardHeader, CardTitle } from "../components/ui/card";
 import { Button } from "../components/ui/button";
 import { Skeleton } from "../components/ui/skeleton";
@@ -21,6 +21,8 @@ import {
   RefreshCw,
   Plus,
   Globe,
+  Bitcoin,
+  PieChart,
 } from "lucide-react";
 import {
   AreaChart,
@@ -29,6 +31,9 @@ import {
   YAxis,
   Tooltip,
   ResponsiveContainer,
+  PieChart as RechartsPieChart,
+  Pie,
+  Cell,
 } from "recharts";
 
 // Currency symbols mapping
@@ -42,8 +47,12 @@ const currencySymbols = {
   NOK: "kr ",
 };
 
+// Colors for pie chart
+const COLORS = ["hsl(var(--primary))", "hsl(var(--warning))"];
+
 export default function Dashboard() {
-  const [summary, setSummary] = useState(null);
+  const [stockSummary, setStockSummary] = useState(null);
+  const [cryptoSummary, setCryptoSummary] = useState(null);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const [currencies, setCurrencies] = useState([]);
@@ -63,8 +72,12 @@ export default function Dashboard() {
   const fetchSummary = useCallback(async (showRefresh = false) => {
     if (showRefresh) setRefreshing(true);
     try {
-      const response = await getPortfolioSummary(displayCurrency);
-      setSummary(response.data);
+      const [stockRes, cryptoRes] = await Promise.all([
+        getPortfolioSummary(displayCurrency),
+        getCryptoPortfolioSummary()
+      ]);
+      setStockSummary(stockRes.data);
+      setCryptoSummary(cryptoRes.data);
     } catch (error) {
       console.error("Failed to fetch portfolio summary:", error);
     } finally {
@@ -101,13 +114,25 @@ export default function Dashboard() {
     return `${sign}${value.toFixed(2)}%`;
   };
 
-  // Generate mock chart data based on holdings
+  // Calculate combined totals
+  const totalPortfolioValue = (stockSummary?.total_value || 0) + (cryptoSummary?.total_value || 0);
+  const totalPortfolioCost = (stockSummary?.total_cost || 0) + (cryptoSummary?.total_cost || 0);
+  const totalGainLoss = totalPortfolioValue - totalPortfolioCost;
+  const totalGainLossPercent = totalPortfolioCost > 0 ? ((totalPortfolioValue - totalPortfolioCost) / totalPortfolioCost) * 100 : 0;
+
+  // Pie chart data
+  const pieData = [
+    { name: "Stocks", value: stockSummary?.total_value || 0, color: "hsl(var(--primary))" },
+    { name: "Crypto", value: cryptoSummary?.total_value || 0, color: "hsl(var(--warning))" },
+  ].filter(d => d.value > 0);
+
+  // Generate mock chart data based on combined holdings
   const generateChartData = () => {
-    if (!summary || summary.holdings_count === 0) return [];
+    if (totalPortfolioCost === 0) return [];
     const days = 30;
     const data = [];
-    let value = summary.total_cost;
-    const dailyReturn = Math.pow(summary.total_value / summary.total_cost, 1 / days);
+    let value = totalPortfolioCost;
+    const dailyReturn = Math.pow(totalPortfolioValue / totalPortfolioCost, 1 / days);
 
     for (let i = days; i >= 0; i--) {
       const date = new Date();
@@ -152,7 +177,8 @@ export default function Dashboard() {
     );
   }
 
-  const isPositive = summary?.total_gain_loss >= 0;
+  const isPositive = totalGainLoss >= 0;
+  const hasHoldings = (stockSummary?.holdings_count || 0) + (cryptoSummary?.holdings_count || 0) > 0;
 
   return (
     <div className="space-y-8" data-testid="dashboard-page">
@@ -160,7 +186,7 @@ export default function Dashboard() {
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
           <h1 className="font-chivo text-3xl font-bold tracking-tight">Dashboard</h1>
-          <p className="text-muted-foreground mt-1">Your portfolio at a glance</p>
+          <p className="text-muted-foreground mt-1">Your complete portfolio at a glance</p>
         </div>
         <div className="flex items-center gap-3">
           {/* Currency Selector */}
@@ -192,38 +218,22 @@ export default function Dashboard() {
             <RefreshCw className={`w-4 h-4 mr-2 ${refreshing ? "animate-spin" : ""}`} />
             Refresh
           </Button>
-          <Link to="/holdings">
-            <Button size="sm" data-testid="add-holding-btn">
-              <Plus className="w-4 h-4 mr-2" />
-              Add Holding
-            </Button>
-          </Link>
         </div>
       </div>
 
-      {/* Currency Notice */}
-      {displayCurrency !== "USD" && (
-        <div className="flex items-center gap-2 px-4 py-2 bg-primary/10 border border-primary/20 rounded-md">
-          <Globe className="w-4 h-4 text-primary" />
-          <span className="text-sm text-primary">
-            All values converted to {displayCurrency} using live exchange rates
-          </span>
-        </div>
-      )}
-
-      {/* Stats Cards */}
+      {/* Combined Stats Cards */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        {/* Total Value */}
+        {/* Total Portfolio Value */}
         <Card className="bg-card border-border card-hover" data-testid="total-value-card">
           <CardHeader className="pb-2 flex flex-row items-center justify-between">
             <CardTitle className="text-sm font-medium text-muted-foreground">
-              Portfolio Value
+              Total Portfolio
             </CardTitle>
             <DollarSign className="w-4 h-4 text-primary" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold font-manrope tabular-nums">
-              {formatCurrency(summary?.total_value || 0)}
+              {formatCurrency(totalPortfolioValue)}
             </div>
             <div
               className={`flex items-center gap-1 text-sm mt-1 ${
@@ -236,9 +246,55 @@ export default function Dashboard() {
                 <ArrowDownRight className="w-4 h-4" />
               )}
               <span className="tabular-nums">
-                {formatPercent(summary?.total_gain_loss_percent || 0)}
+                {formatPercent(totalGainLossPercent)}
               </span>
               <span className="text-muted-foreground">all time</span>
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Stocks Value */}
+        <Card className="bg-card border-border card-hover" data-testid="stocks-value-card">
+          <CardHeader className="pb-2 flex flex-row items-center justify-between">
+            <CardTitle className="text-sm font-medium text-muted-foreground">
+              Stocks
+            </CardTitle>
+            <Briefcase className="w-4 h-4 text-primary" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold font-manrope tabular-nums">
+              {formatCurrency(stockSummary?.total_value || 0)}
+            </div>
+            <div className="flex items-center gap-2 text-sm mt-1">
+              <span className="text-muted-foreground">{stockSummary?.holdings_count || 0} holdings</span>
+              {stockSummary?.total_gain_loss !== undefined && (
+                <span className={stockSummary.total_gain_loss >= 0 ? "text-gain" : "text-loss"}>
+                  {formatPercent(stockSummary.total_gain_loss_percent || 0)}
+                </span>
+              )}
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Crypto Value */}
+        <Card className="bg-card border-border card-hover" data-testid="crypto-value-card">
+          <CardHeader className="pb-2 flex flex-row items-center justify-between">
+            <CardTitle className="text-sm font-medium text-muted-foreground">
+              Crypto
+            </CardTitle>
+            <Bitcoin className="w-4 h-4 text-warning" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold font-manrope tabular-nums">
+              {formatCurrency(cryptoSummary?.total_value || 0)}
+            </div>
+            <div className="flex items-center gap-2 text-sm mt-1">
+              <span className="text-muted-foreground">{cryptoSummary?.holdings_count || 0} holdings</span>
+              {cryptoSummary?.total_gain_loss !== undefined && (
+                <span className={cryptoSummary.total_gain_loss >= 0 ? "text-gain" : "text-loss"}>
+                  {formatPercent(cryptoSummary.total_gain_loss_percent || 0)}
+                </span>
+              )}
             </div>
           </CardContent>
         </Card>
@@ -262,227 +318,271 @@ export default function Dashboard() {
               }`}
             >
               {isPositive ? "+" : ""}
-              {formatCurrency(summary?.total_gain_loss || 0)}
+              {formatCurrency(totalGainLoss)}
             </div>
             <div className="text-sm text-muted-foreground mt-1">
-              Cost basis: {formatCurrency(summary?.total_cost || 0)}
+              Cost: {formatCurrency(totalPortfolioCost)}
             </div>
           </CardContent>
         </Card>
+      </div>
 
-        {/* Holdings Count */}
-        <Card className="bg-card border-border card-hover" data-testid="holdings-count-card">
-          <CardHeader className="pb-2 flex flex-row items-center justify-between">
-            <CardTitle className="text-sm font-medium text-muted-foreground">
-              Holdings
-            </CardTitle>
-            <Briefcase className="w-4 h-4 text-chart-3" />
+      {/* Charts Row */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        {/* Portfolio Performance Chart */}
+        <Card className="bg-card border-border lg:col-span-2" data-testid="portfolio-chart-card">
+          <CardHeader>
+            <CardTitle className="font-chivo">Portfolio Performance</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold font-manrope tabular-nums">
-              {summary?.holdings_count || 0}
-            </div>
-            <div className="text-sm text-muted-foreground mt-1">
-              {summary?.holdings_count === 1 ? "stock" : "stocks"} in portfolio
-            </div>
-          </CardContent>
-        </Card>
-
-        {/* Top Performer */}
-        <Card className="bg-card border-border card-hover" data-testid="top-performer-card">
-          <CardHeader className="pb-2 flex flex-row items-center justify-between">
-            <CardTitle className="text-sm font-medium text-muted-foreground">
-              Top Performer
-            </CardTitle>
-            <TrendingUp className="w-4 h-4 text-success" />
-          </CardHeader>
-          <CardContent>
-            {summary?.holdings?.length > 0 ? (
-              <>
-                <div className="text-2xl font-bold font-mono">
-                  {
-                    [...(summary.holdings || [])].sort(
-                      (a, b) => b.gain_loss_percent - a.gain_loss_percent
-                    )[0]?.symbol
-                  }
-                </div>
-                <div className="text-sm text-gain mt-1 tabular-nums">
-                  {formatPercent(
-                    [...(summary.holdings || [])].sort(
-                      (a, b) => b.gain_loss_percent - a.gain_loss_percent
-                    )[0]?.gain_loss_percent || 0
-                  )}
-                </div>
-              </>
+            {hasHoldings ? (
+              <div className="h-72">
+                <ResponsiveContainer width="100%" height="100%">
+                  <AreaChart data={chartData}>
+                    <defs>
+                      <linearGradient id="colorValue" x1="0" y1="0" x2="0" y2="1">
+                        <stop
+                          offset="5%"
+                          stopColor="hsl(var(--primary))"
+                          stopOpacity={0.3}
+                        />
+                        <stop
+                          offset="95%"
+                          stopColor="hsl(var(--primary))"
+                          stopOpacity={0}
+                        />
+                      </linearGradient>
+                    </defs>
+                    <XAxis
+                      dataKey="date"
+                      stroke="hsl(var(--muted-foreground))"
+                      fontSize={12}
+                      tickLine={false}
+                      axisLine={false}
+                    />
+                    <YAxis
+                      stroke="hsl(var(--muted-foreground))"
+                      fontSize={12}
+                      tickLine={false}
+                      axisLine={false}
+                      tickFormatter={(value) => `${currencySymbols[displayCurrency] || "$"}${(value / 1000).toFixed(0)}k`}
+                      domain={["auto", "auto"]}
+                    />
+                    <Tooltip
+                      contentStyle={{
+                        backgroundColor: "hsl(var(--card))",
+                        border: "1px solid hsl(var(--border))",
+                        borderRadius: "6px",
+                      }}
+                      labelStyle={{ color: "hsl(var(--foreground))" }}
+                      formatter={(value) => [formatCurrency(value), "Value"]}
+                    />
+                    <Area
+                      type="monotone"
+                      dataKey="value"
+                      stroke="hsl(var(--primary))"
+                      strokeWidth={2}
+                      fillOpacity={1}
+                      fill="url(#colorValue)"
+                    />
+                  </AreaChart>
+                </ResponsiveContainer>
+              </div>
             ) : (
-              <>
-                <div className="text-2xl font-bold text-muted-foreground">—</div>
-                <div className="text-sm text-muted-foreground mt-1">No holdings yet</div>
-              </>
+              <div className="h-72 flex flex-col items-center justify-center text-muted-foreground">
+                <Briefcase className="w-12 h-12 mb-4 opacity-50" />
+                <p className="text-lg font-medium">No holdings yet</p>
+                <p className="text-sm">Add stocks or crypto to see your portfolio performance</p>
+                <div className="flex gap-2 mt-4">
+                  <Link to="/holdings">
+                    <Button variant="outline" size="sm" data-testid="empty-add-stock-btn">
+                      <Plus className="w-4 h-4 mr-2" />
+                      Add Stock
+                    </Button>
+                  </Link>
+                  <Link to="/crypto">
+                    <Button variant="outline" size="sm" data-testid="empty-add-crypto-btn">
+                      <Bitcoin className="w-4 h-4 mr-2" />
+                      Add Crypto
+                    </Button>
+                  </Link>
+                </div>
+              </div>
+            )}
+          </CardContent>
+        </Card>
+
+        {/* Allocation Pie Chart */}
+        <Card className="bg-card border-border" data-testid="allocation-chart-card">
+          <CardHeader>
+            <CardTitle className="font-chivo flex items-center gap-2">
+              <PieChart className="w-5 h-5" />
+              Allocation
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            {hasHoldings && pieData.length > 0 ? (
+              <div className="h-72 flex flex-col items-center justify-center">
+                <ResponsiveContainer width="100%" height={200}>
+                  <RechartsPieChart>
+                    <Pie
+                      data={pieData}
+                      cx="50%"
+                      cy="50%"
+                      innerRadius={50}
+                      outerRadius={80}
+                      paddingAngle={5}
+                      dataKey="value"
+                    >
+                      {pieData.map((entry, index) => (
+                        <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                      ))}
+                    </Pie>
+                    <Tooltip
+                      contentStyle={{
+                        backgroundColor: "hsl(var(--card))",
+                        border: "1px solid hsl(var(--border))",
+                        borderRadius: "6px",
+                      }}
+                      formatter={(value) => formatCurrency(value)}
+                    />
+                  </RechartsPieChart>
+                </ResponsiveContainer>
+                <div className="flex gap-6 mt-2">
+                  <div className="flex items-center gap-2">
+                    <div className="w-3 h-3 rounded-full bg-primary" />
+                    <span className="text-sm">Stocks ({((stockSummary?.total_value || 0) / totalPortfolioValue * 100).toFixed(1)}%)</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <div className="w-3 h-3 rounded-full bg-warning" />
+                    <span className="text-sm">Crypto ({((cryptoSummary?.total_value || 0) / totalPortfolioValue * 100).toFixed(1)}%)</span>
+                  </div>
+                </div>
+              </div>
+            ) : (
+              <div className="h-72 flex flex-col items-center justify-center text-muted-foreground">
+                <PieChart className="w-12 h-12 mb-4 opacity-50" />
+                <p className="text-sm">Add holdings to see allocation</p>
+              </div>
             )}
           </CardContent>
         </Card>
       </div>
 
-      {/* Portfolio Chart */}
-      <Card className="bg-card border-border" data-testid="portfolio-chart-card">
-        <CardHeader>
-          <CardTitle className="font-chivo">Portfolio Performance</CardTitle>
-        </CardHeader>
-        <CardContent>
-          {summary?.holdings_count > 0 ? (
-            <div className="h-72">
-              <ResponsiveContainer width="100%" height="100%">
-                <AreaChart data={chartData}>
-                  <defs>
-                    <linearGradient id="colorValue" x1="0" y1="0" x2="0" y2="1">
-                      <stop
-                        offset="5%"
-                        stopColor="hsl(var(--primary))"
-                        stopOpacity={0.3}
-                      />
-                      <stop
-                        offset="95%"
-                        stopColor="hsl(var(--primary))"
-                        stopOpacity={0}
-                      />
-                    </linearGradient>
-                  </defs>
-                  <XAxis
-                    dataKey="date"
-                    stroke="hsl(var(--muted-foreground))"
-                    fontSize={12}
-                    tickLine={false}
-                    axisLine={false}
-                  />
-                  <YAxis
-                    stroke="hsl(var(--muted-foreground))"
-                    fontSize={12}
-                    tickLine={false}
-                    axisLine={false}
-                    tickFormatter={(value) => `${currencySymbols[displayCurrency] || "$"}${(value / 1000).toFixed(0)}k`}
-                    domain={["auto", "auto"]}
-                  />
-                  <Tooltip
-                    contentStyle={{
-                      backgroundColor: "hsl(var(--card))",
-                      border: "1px solid hsl(var(--border))",
-                      borderRadius: "6px",
-                    }}
-                    labelStyle={{ color: "hsl(var(--foreground))" }}
-                    formatter={(value) => [formatCurrency(value), "Value"]}
-                  />
-                  <Area
-                    type="monotone"
-                    dataKey="value"
-                    stroke="hsl(var(--primary))"
-                    strokeWidth={2}
-                    fillOpacity={1}
-                    fill="url(#colorValue)"
-                  />
-                </AreaChart>
-              </ResponsiveContainer>
-            </div>
-          ) : (
-            <div className="h-72 flex flex-col items-center justify-center text-muted-foreground">
-              <Briefcase className="w-12 h-12 mb-4 opacity-50" />
-              <p className="text-lg font-medium">No holdings yet</p>
-              <p className="text-sm">Add stocks to see your portfolio performance</p>
-              <Link to="/holdings" className="mt-4">
-                <Button data-testid="empty-add-holding-btn">
-                  <Plus className="w-4 h-4 mr-2" />
-                  Add Your First Holding
-                </Button>
-              </Link>
-            </div>
-          )}
-        </CardContent>
-      </Card>
-
-      {/* Holdings Table */}
-      {summary?.holdings?.length > 0 && (
-        <Card className="bg-card border-border" data-testid="holdings-table-card">
+      {/* Holdings Tables */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        {/* Stock Holdings */}
+        <Card className="bg-card border-border" data-testid="stock-holdings-card">
           <CardHeader className="flex flex-row items-center justify-between">
-            <CardTitle className="font-chivo">Holdings</CardTitle>
+            <CardTitle className="font-chivo flex items-center gap-2">
+              <Briefcase className="w-5 h-5 text-primary" />
+              Stock Holdings
+            </CardTitle>
             <Link to="/holdings">
-              <Button variant="ghost" size="sm" data-testid="view-all-holdings-btn">
+              <Button variant="ghost" size="sm" data-testid="view-all-stocks-btn">
                 View All
               </Button>
             </Link>
           </CardHeader>
           <CardContent>
-            <div className="overflow-x-auto">
-              <table className="w-full">
-                <thead>
-                  <tr className="border-b border-border text-left">
-                    <th className="pb-3 text-sm font-medium text-muted-foreground">Symbol</th>
-                    <th className="pb-3 text-sm font-medium text-muted-foreground text-right">
-                      Shares
-                    </th>
-                    <th className="pb-3 text-sm font-medium text-muted-foreground text-right">
-                      Price
-                    </th>
-                    <th className="pb-3 text-sm font-medium text-muted-foreground text-right">
-                      Value ({displayCurrency})
-                    </th>
-                    <th className="pb-3 text-sm font-medium text-muted-foreground text-right">
-                      Gain/Loss
-                    </th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {summary.holdings.slice(0, 5).map((holding) => (
-                    <tr
-                      key={holding.id}
-                      className="border-b border-border/50 hover:bg-accent/50 transition-colors"
-                      data-testid={`holding-row-${holding.symbol}`}
-                    >
-                      <td className="py-4">
-                        <div className="flex items-center gap-3">
-                          <div className="w-8 h-8 rounded-md bg-primary/10 flex items-center justify-center">
-                            <span className="text-xs font-mono font-bold text-primary">
-                              {holding.symbol.split(".")[0].slice(0, 2)}
-                            </span>
-                          </div>
-                          <div>
-                            <span className="font-mono font-medium">{holding.symbol}</span>
-                            {holding.original_currency && holding.original_currency !== displayCurrency && (
-                              <span className="ml-2 text-xs text-muted-foreground">
-                                ({holding.original_currency})
-                              </span>
-                            )}
-                          </div>
-                        </div>
-                      </td>
-                      <td className="py-4 text-right tabular-nums">{holding.shares}</td>
-                      <td className="py-4 text-right tabular-nums">
-                        {currencySymbols[holding.original_currency] || "$"}{holding.current_price.toFixed(2)}
-                      </td>
-                      <td className="py-4 text-right tabular-nums font-medium">
+            {stockSummary?.holdings?.length > 0 ? (
+              <div className="space-y-3">
+                {stockSummary.holdings.slice(0, 5).map((holding) => (
+                  <div
+                    key={holding.id}
+                    className="flex items-center justify-between p-3 rounded-md bg-secondary/30 hover:bg-secondary/50 transition-colors"
+                    data-testid={`stock-row-${holding.symbol}`}
+                  >
+                    <div className="flex items-center gap-3">
+                      <div className="w-8 h-8 rounded-md bg-primary/10 flex items-center justify-center">
+                        <span className="text-xs font-mono font-bold text-primary">
+                          {holding.symbol.split(".")[0].slice(0, 2)}
+                        </span>
+                      </div>
+                      <div>
+                        <p className="font-mono font-medium text-sm">{holding.symbol}</p>
+                        <p className="text-xs text-muted-foreground">{holding.shares} shares</p>
+                      </div>
+                    </div>
+                    <div className="text-right">
+                      <p className="font-medium tabular-nums text-sm">
                         {formatCurrency(holding.market_value_converted || holding.market_value)}
-                      </td>
-                      <td className="py-4 text-right">
-                        <div
-                          className={`inline-flex items-center gap-1 px-2 py-1 rounded-sm text-sm tabular-nums ${
-                            holding.gain_loss >= 0 ? "bg-gain text-gain" : "bg-loss text-loss"
-                          }`}
-                        >
-                          {holding.gain_loss >= 0 ? (
-                            <ArrowUpRight className="w-3 h-3" />
-                          ) : (
-                            <ArrowDownRight className="w-3 h-3" />
-                          )}
-                          {formatPercent(holding.gain_loss_percent)}
-                        </div>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
+                      </p>
+                      <p className={`text-xs tabular-nums ${holding.gain_loss_percent >= 0 ? "text-gain" : "text-loss"}`}>
+                        {formatPercent(holding.gain_loss_percent)}
+                      </p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <div className="text-center py-8 text-muted-foreground">
+                <Briefcase className="w-8 h-8 mx-auto mb-2 opacity-50" />
+                <p className="text-sm">No stock holdings</p>
+                <Link to="/holdings">
+                  <Button variant="link" size="sm" className="mt-2">Add stocks</Button>
+                </Link>
+              </div>
+            )}
           </CardContent>
         </Card>
-      )}
+
+        {/* Crypto Holdings */}
+        <Card className="bg-card border-border" data-testid="crypto-holdings-card">
+          <CardHeader className="flex flex-row items-center justify-between">
+            <CardTitle className="font-chivo flex items-center gap-2">
+              <Bitcoin className="w-5 h-5 text-warning" />
+              Crypto Holdings
+            </CardTitle>
+            <Link to="/crypto">
+              <Button variant="ghost" size="sm" data-testid="view-all-crypto-btn">
+                View All
+              </Button>
+            </Link>
+          </CardHeader>
+          <CardContent>
+            {cryptoSummary?.holdings?.length > 0 ? (
+              <div className="space-y-3">
+                {cryptoSummary.holdings.slice(0, 5).map((holding) => (
+                  <div
+                    key={holding.id}
+                    className="flex items-center justify-between p-3 rounded-md bg-secondary/30 hover:bg-secondary/50 transition-colors"
+                    data-testid={`crypto-row-${holding.symbol}`}
+                  >
+                    <div className="flex items-center gap-3">
+                      <div className="w-8 h-8 rounded-md bg-warning/10 flex items-center justify-center">
+                        <span className="text-xs font-mono font-bold text-warning">
+                          {holding.symbol.slice(0, 2)}
+                        </span>
+                      </div>
+                      <div>
+                        <p className="font-mono font-medium text-sm">{holding.symbol}</p>
+                        <p className="text-xs text-muted-foreground">{holding.amount} units</p>
+                      </div>
+                    </div>
+                    <div className="text-right">
+                      <p className="font-medium tabular-nums text-sm">
+                        {formatCurrency(holding.market_value)}
+                      </p>
+                      <p className={`text-xs tabular-nums ${holding.gain_loss_percent >= 0 ? "text-gain" : "text-loss"}`}>
+                        {formatPercent(holding.gain_loss_percent)}
+                      </p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <div className="text-center py-8 text-muted-foreground">
+                <Bitcoin className="w-8 h-8 mx-auto mb-2 opacity-50" />
+                <p className="text-sm">No crypto holdings</p>
+                <Link to="/crypto">
+                  <Button variant="link" size="sm" className="mt-2">Add crypto</Button>
+                </Link>
+              </div>
+            )}
+          </CardContent>
+        </Card>
+      </div>
     </div>
   );
 }
