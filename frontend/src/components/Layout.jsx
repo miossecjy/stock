@@ -1,5 +1,6 @@
 import { Outlet, NavLink, useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
+import { useLanguage } from "../context/LanguageContext";
 import { Button } from "./ui/button";
 import {
   DropdownMenu,
@@ -8,26 +9,29 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "./ui/dropdown-menu";
-import { LayoutDashboard, Briefcase, Eye, LogOut, User, TrendingUp, Menu, Bitcoin, Bell } from "lucide-react";
+import { LayoutDashboard, Briefcase, Eye, LogOut, User, TrendingUp, Menu, Bitcoin, Bell, Settings, Globe } from "lucide-react";
 import { useState } from "react";
-
-const navItems = [
-  { to: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
-  { to: "/holdings", label: "Holdings", icon: Briefcase },
-  { to: "/watchlist", label: "Watchlist", icon: Eye },
-  { to: "/crypto", label: "Crypto", icon: Bitcoin },
-  { to: "/alerts", label: "Alerts", icon: Bell },
-];
 
 export default function Layout() {
   const { user, logout } = useAuth();
+  const { language, setLanguage, languages, t } = useLanguage();
   const navigate = useNavigate();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+
+  const navItems = [
+    { to: "/dashboard", label: t("nav.dashboard"), icon: LayoutDashboard },
+    { to: "/holdings", label: t("nav.holdings"), icon: Briefcase },
+    { to: "/watchlist", label: t("nav.watchlist"), icon: Eye },
+    { to: "/crypto", label: t("nav.crypto"), icon: Bitcoin },
+    { to: "/alerts", label: t("nav.alerts"), icon: Bell },
+  ];
 
   const handleLogout = () => {
     logout();
     navigate("/login");
   };
+
+  const currentLang = languages.find((l) => l.code === language);
 
   return (
     <div className="min-h-screen bg-background" data-testid="app-layout">
@@ -58,7 +62,7 @@ export default function Layout() {
                         : "text-muted-foreground hover:text-foreground hover:bg-accent"
                     }`
                   }
-                  data-testid={`nav-${item.label.toLowerCase()}`}
+                  data-testid={`nav-${item.to.slice(1)}`}
                 >
                   <item.icon className="w-4 h-4" />
                   {item.label}
@@ -66,8 +70,40 @@ export default function Layout() {
               ))}
             </nav>
 
-            {/* User Menu */}
+            {/* Right Section: Language + User Menu */}
             <div className="flex items-center gap-2">
+              {/* Language Selector Dropdown */}
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="flex items-center gap-2 px-3"
+                    data-testid="language-selector-btn"
+                  >
+                    <Globe className="w-4 h-4 text-muted-foreground" />
+                    <span className="hidden sm:block text-lg">{currentLang?.flag}</span>
+                    <span className="hidden lg:block text-sm">{currentLang?.name}</span>
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end" className="w-48">
+                  {languages.map((lang) => (
+                    <DropdownMenuItem
+                      key={lang.code}
+                      onClick={() => setLanguage(lang.code)}
+                      className={`cursor-pointer ${language === lang.code ? "bg-primary/10" : ""}`}
+                      data-testid={`lang-select-${lang.code}`}
+                    >
+                      <span className="text-lg mr-2">{lang.flag}</span>
+                      <span>{lang.name}</span>
+                      {language === lang.code && (
+                        <span className="ml-auto text-primary">✓</span>
+                      )}
+                    </DropdownMenuItem>
+                  ))}
+                </DropdownMenuContent>
+              </DropdownMenu>
+
               {/* Mobile Menu Button */}
               <Button
                 variant="ghost"
@@ -79,6 +115,7 @@ export default function Layout() {
                 <Menu className="w-5 h-5" />
               </Button>
 
+              {/* User Menu */}
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
                   <Button
@@ -101,12 +138,21 @@ export default function Layout() {
                   </div>
                   <DropdownMenuSeparator />
                   <DropdownMenuItem
+                    onClick={() => navigate("/settings")}
+                    className="cursor-pointer"
+                    data-testid="settings-menu-item"
+                  >
+                    <Settings className="w-4 h-4 mr-2" />
+                    Settings
+                  </DropdownMenuItem>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem
                     onClick={handleLogout}
                     className="text-destructive focus:text-destructive cursor-pointer"
                     data-testid="logout-btn"
                   >
                     <LogOut className="w-4 h-4 mr-2" />
-                    Logout
+                    {t("nav.logout")}
                   </DropdownMenuItem>
                 </DropdownMenuContent>
               </DropdownMenu>
@@ -129,12 +175,27 @@ export default function Layout() {
                           : "text-muted-foreground hover:text-foreground hover:bg-accent"
                       }`
                     }
-                    data-testid={`mobile-nav-${item.label.toLowerCase()}`}
+                    data-testid={`mobile-nav-${item.to.slice(1)}`}
                   >
                     <item.icon className="w-4 h-4" />
                     {item.label}
                   </NavLink>
                 ))}
+                <NavLink
+                  to="/settings"
+                  onClick={() => setMobileMenuOpen(false)}
+                  className={({ isActive }) =>
+                    `flex items-center gap-2 px-4 py-3 rounded-sm text-sm font-medium transition-all duration-200 ${
+                      isActive
+                        ? "bg-primary/10 text-primary"
+                        : "text-muted-foreground hover:text-foreground hover:bg-accent"
+                    }`
+                  }
+                  data-testid="mobile-nav-settings"
+                >
+                  <Settings className="w-4 h-4" />
+                  Settings
+                </NavLink>
               </div>
             </nav>
           )}
