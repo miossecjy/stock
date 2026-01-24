@@ -272,6 +272,61 @@ class StockPortfolioAPITester:
         print("\n🔍 Testing Crypto Portfolio Summary...")
         self.run_test("Crypto Portfolio Summary", "GET", "crypto/portfolio/summary", 200)
 
+    def test_price_alerts_crud(self):
+        """Test price alerts CRUD operations"""
+        print("\n🔍 Testing Price Alerts CRUD...")
+        
+        # Get initial alerts (should be empty)
+        self.run_test("Get Price Alerts (Empty)", "GET", "alerts", 200)
+        
+        # Create stock alert
+        stock_alert_data = {
+            "asset_type": "stock",
+            "symbol": "AAPL",
+            "name": "Apple Inc",
+            "target_price": 200.00,
+            "condition": "above"
+        }
+        
+        create_response = self.run_test("Create Stock Alert", "POST", "alerts", 200, stock_alert_data)
+        stock_alert_id = None
+        if create_response and 'id' in create_response:
+            stock_alert_id = create_response['id']
+            print(f"    Created stock alert ID: {stock_alert_id}")
+        
+        # Create crypto alert
+        crypto_alert_data = {
+            "asset_type": "crypto",
+            "symbol": "BTC",
+            "name": "Bitcoin",
+            "target_price": 50000.00,
+            "condition": "below",
+            "coin_id": "bitcoin"
+        }
+        
+        create_response = self.run_test("Create Crypto Alert", "POST", "alerts", 200, crypto_alert_data)
+        crypto_alert_id = None
+        if create_response and 'id' in create_response:
+            crypto_alert_id = create_response['id']
+            print(f"    Created crypto alert ID: {crypto_alert_id}")
+        
+        # Get alerts after creation
+        self.run_test("Get Price Alerts (After Create)", "GET", "alerts", 200)
+        
+        # Check alerts
+        self.run_test("Check Price Alerts", "GET", "alerts/check", 200)
+        
+        # Reset alert (if we have one)
+        if stock_alert_id:
+            self.run_test("Reset Stock Alert", "POST", f"alerts/{stock_alert_id}/reset", 200)
+        
+        # Delete alerts
+        if stock_alert_id:
+            self.run_test("Delete Stock Alert", "DELETE", f"alerts/{stock_alert_id}", 200)
+        
+        if crypto_alert_id:
+            self.run_test("Delete Crypto Alert", "DELETE", f"alerts/{crypto_alert_id}", 200)
+
     def run_all_tests(self):
         """Run all tests"""
         print("🚀 Starting Stock Portfolio API Tests...")
