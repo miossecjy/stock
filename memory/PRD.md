@@ -76,16 +76,24 @@ Build a portal through which a user can track their stock portfolio in real time
 - Responsive design
 - Currency selector in dashboard header
 - Exchange color-coding in search & holdings
+- Language selector dropdown in navbar with flag icons
+- Settings page with language cards
 
 ## API Endpoints
 - Auth: /api/auth/register, /api/auth/login, /api/auth/me
 - Holdings: /api/holdings (CRUD)
 - Watchlist: /api/watchlist (CRUD)
-- Stocks: /api/stocks/quote, /api/stocks/search
+- Stocks: /api/stocks/quote, /api/stocks/search, /api/stocks/popular
 - Currency: /api/currencies, /api/exchange-rates
 - Portfolio: /api/portfolio/summary?display_currency={code}
-- Crypto: /api/crypto/top, /api/crypto/holdings, /api/crypto/watchlist
+- Crypto: /api/crypto/top, /api/crypto/holdings, /api/crypto/watchlist, /api/crypto/summary
 - Alerts: /api/alerts (CRUD), /api/alerts/check
+
+## Key Files
+- `/app/frontend/src/context/LanguageContext.js` - Translations and language provider
+- `/app/frontend/src/pages/Settings.jsx` - Language settings page
+- `/app/frontend/src/components/Layout.jsx` - Navbar with language selector
+- `/app/backend/server.py` - FastAPI backend
 
 ## Prioritized Backlog
 
@@ -99,7 +107,13 @@ Build a portal through which a user can track their stock portfolio in real time
 - News integration per stock/crypto
 - Percentage change alerts
 
+### Known Limitations
+- European stocks use mock data (Finnhub free tier only supports US stocks)
+- API rate limits may trigger mock data fallback
+- Real-time data refreshes every 60 seconds
+
 ## Next Tasks
 1. Add email notifications via SendGrid/Resend
 2. Implement historical portfolio value tracking with charts
 3. Add CSV export for holdings and transactions
+4. Explore premium API for European stocks
