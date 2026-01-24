@@ -424,6 +424,7 @@ class StockPortfolioAPITester:
         
         # Stock functionality tests
         self.test_stock_functionality()
+        self.test_european_stocks_specific()
         self.test_holdings_crud()
         self.test_watchlist_crud()
         self.test_portfolio_summary()
