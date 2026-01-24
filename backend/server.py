@@ -449,10 +449,10 @@ async def search_stocks(query: str):
                         "exchange": exchange
                     })
                 return results
-            elif "Note" in data:
+            elif "Note" in data or "Information" in data:
                 # API limit - return popular stocks
                 return get_popular_stocks(query)
-            return []
+            return get_popular_stocks(query) if not data.get("bestMatches") else []
     except Exception as e:
         logger.error(f"Error searching stocks: {e}")
         return get_popular_stocks(query)
