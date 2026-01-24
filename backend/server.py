@@ -386,7 +386,78 @@ async def convert_to_currency(amount: float, from_currency: str, to_currency: st
     rate = rates.get(to_currency, 1.0)
     return amount * rate
 
+async def fetch_stock_quote_finnhub(symbol: str):
+    """Fetch stock quote from Finnhub API (primary source - 60 req/min)"""
+    if not FINNHUB_API_KEY:
+        return None
+    
+    try:
+        # Convert symbol format for Finnhub
+        finnhub_symbol = convert_symbol_for_finnhub(symbol)
+        
+        async with httpx.AsyncClient() as client:
+            response = await client.get(
+                "https://finnhub.io/api/v1/quote",
+                params={
+                    "symbol": finnhub_symbol,
+                    "token": FINNHUB_API_KEY
+                },
+                timeout=10.0
+            )
+            data = response.json()
+            
+            # Check if we got valid data (c = current price)
+            if data.get("c") and data.get("c") > 0:
+                change = data.get("c", 0) - data.get("pc", 0)
+                change_percent = (change / data.get("pc", 1)) * 100 if data.get("pc") else 0
+                
+                return {
+                    "symbol": symbol,
+                    "price": data.get("c", 0),
+                    "change": round(change, 2),
+                    "change_percent": str(round(change_percent, 2)),
+                    "volume": 0,  # Finnhub quote doesn't include volume
+                    "latest_trading_day": datetime.now(timezone.utc).strftime("%Y-%m-%d"),
+                    "previous_close": data.get("pc", 0),
+                    "high": data.get("h", 0),
+                    "low": data.get("l", 0),
+                    "open": data.get("o", 0),
+                    "source": "finnhub"
+                }
+            return None
+    except Exception as e:
+        logger.error(f"Finnhub API error for {symbol}: {e}")
+        return None
+
+def convert_symbol_for_finnhub(symbol: str) -> str:
+    """Convert our symbol format to Finnhub format"""
+    # Finnhub uses different exchange suffixes
+    # Our format: BMW.DEX -> Finnhub: BMW.DE (XETRA)
+    # Our format: SHEL.LON -> Finnhub: SHEL.L (LSE)
+    # Our format: MC.PAR -> Finnhub: MC.PA (Euronext Paris)
+    
+    conversions = {
+        ".LON": ".L",      # London
+        ".DEX": ".DE",     # Frankfurt/XETRA
+        ".PAR": ".PA",     # Paris
+        ".AMS": ".AS",     # Amsterdam
+        ".MIL": ".MI",     # Milan
+        ".MAD": ".MC",     # Madrid
+        ".SWX": ".SW",     # Swiss
+        ".CPH": ".CO",     # Copenhagen
+        ".STO": ".ST",     # Stockholm
+        ".OSL": ".OL",     # Oslo
+        ".BRU": ".BR",     # Brussels
+    }
+    
+    for our_suffix, finnhub_suffix in conversions.items():
+        if symbol.endswith(our_suffix):
+            return symbol.replace(our_suffix, finnhub_suffix)
+    
+    return symbol  # US stocks don't need conversion
+
 async def fetch_stock_quote(symbol: str):
+    """Fetch stock quote - tries Finnhub first, then Alpha Vantage, then mock"""
     cache_key = f"quote_{symbol}"
     now = datetime.now(timezone.utc).timestamp()
     
@@ -395,6 +466,13 @@ async def fetch_stock_quote(symbol: str):
         if now - cached_time < CACHE_TTL:
             return cached_data
     
+    # Try Finnhub first (60 req/min)
+    result = await fetch_stock_quote_finnhub(symbol)
+    if result:
+        stock_cache[cache_key] = (result, now)
+        return result
+    
+    # Fallback to Alpha Vantage
     try:
         async with httpx.AsyncClient() as client:
             response = await client.get(
@@ -417,13 +495,13 @@ async def fetch_stock_quote(symbol: str):
                     "change_percent": quote.get("10. change percent", "0%").replace("%", ""),
                     "volume": int(quote.get("06. volume", 0)),
                     "latest_trading_day": quote.get("07. latest trading day", ""),
-                    "previous_close": float(quote.get("08. previous close", 0))
+                    "previous_close": float(quote.get("08. previous close", 0)),
+                    "source": "alphavantage"
                 }
                 stock_cache[cache_key] = (result, now)
                 return result
-            elif "Note" in data:
-                # API limit reached, return mock data
-                logger.warning(f"Alpha Vantage API limit reached: {data['Note']}")
+            elif "Note" in data or "Information" in data:
+                logger.warning(f"Alpha Vantage API limit reached")
                 return get_mock_quote(symbol)
             else:
                 return get_mock_quote(symbol)
