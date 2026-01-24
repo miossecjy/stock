@@ -279,7 +279,7 @@ export default function Watchlist() {
                       </span>
                     </div>
                     <p className="text-xs text-muted-foreground">
-                      Vol: {quote.volume?.toLocaleString() || "—"}
+                      {t("watchlist.volume")}: {quote.volume?.toLocaleString() || "—"}
                     </p>
                   </div>
                 </CardContent>
