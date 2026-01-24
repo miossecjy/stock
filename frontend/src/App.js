@@ -69,6 +69,7 @@ function App() {
             <Route path="dashboard" element={<Dashboard />} />
             <Route path="holdings" element={<Holdings />} />
             <Route path="watchlist" element={<Watchlist />} />
+            <Route path="crypto" element={<Crypto />} />
           </Route>
         </Routes>
       </BrowserRouter>
