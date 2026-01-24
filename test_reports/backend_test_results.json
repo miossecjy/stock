@@ -1,7 +1,7 @@
 {
   "summary": {
-    "tests_run": 73,
-    "tests_passed": 73,
+    "tests_run": 137,
+    "tests_passed": 137,
     "success_rate": 100.0
   },
   "results": [
@@ -9,440 +9,824 @@
       "test": "Health Check",
       "success": true,
       "details": "Status: 200",
-      "timestamp": "2026-01-24T17:53:14.750149"
+      "timestamp": "2026-01-24T18:07:25.817544"
     },
     {
       "test": "Root Endpoint",
       "success": true,
       "details": "Status: 200",
-      "timestamp": "2026-01-24T17:53:14.795683"
+      "timestamp": "2026-01-24T18:07:25.853181"
     },
     {
       "test": "User Registration",
       "success": true,
       "details": "Status: 200",
-      "timestamp": "2026-01-24T17:53:15.060379"
+      "timestamp": "2026-01-24T18:07:26.151823"
     },
     {
       "test": "User Login",
       "success": true,
       "details": "Status: 200",
-      "timestamp": "2026-01-24T17:53:15.317821"
+      "timestamp": "2026-01-24T18:07:26.410265"
     },
     {
       "test": "Get Current User",
       "success": true,
       "details": "Status: 200",
-      "timestamp": "2026-01-24T17:53:15.355479"
+      "timestamp": "2026-01-24T18:07:26.457902"
     },
     {
       "test": "Stock Search - US",
       "success": true,
       "details": "Status: 200",
-      "timestamp": "2026-01-24T17:53:15.527542"
+      "timestamp": "2026-01-24T18:07:26.644343"
     },
     {
       "test": "Stock Search - European",
       "success": true,
       "details": "Status: 200",
-      "timestamp": "2026-01-24T17:53:15.692701"
+      "timestamp": "2026-01-24T18:07:26.767434"
     },
     {
       "test": "Stock Quote - US",
       "success": true,
       "details": "Status: 200",
-      "timestamp": "2026-01-24T17:53:15.823540"
+      "timestamp": "2026-01-24T18:07:26.909610"
     },
     {
       "test": "Stock Quote - European BMW",
       "success": true,
       "details": "Status: 200",
-      "timestamp": "2026-01-24T17:53:15.960244"
+      "timestamp": "2026-01-24T18:07:27.046878"
     },
     {
       "test": "Stock Quote - European Shell",
       "success": true,
       "details": "Status: 200",
-      "timestamp": "2026-01-24T17:53:16.104231"
+      "timestamp": "2026-01-24T18:07:27.193497"
     },
     {
       "test": "Multiple Quotes - Mixed US/EU",
       "success": true,
       "details": "Status: 200",
-      "timestamp": "2026-01-24T17:53:16.442178"
+      "timestamp": "2026-01-24T18:07:27.529892"
     },
     {
       "test": "European Stock Search Response",
       "success": true,
       "details": "Status: 200",
-      "timestamp": "2026-01-24T17:53:16.594380"
+      "timestamp": "2026-01-24T18:07:27.672024"
     },
     {
       "test": "BMW Stock Has Exchange Field",
       "success": true,
       "details": "Exchange: Frankfurt",
-      "timestamp": "2026-01-24T17:53:16.595286"
+      "timestamp": "2026-01-24T18:07:27.672549"
     },
     {
       "test": "BMW Stock Has Currency Field",
       "success": true,
       "details": "Currency: EUR",
-      "timestamp": "2026-01-24T17:53:16.595305"
+      "timestamp": "2026-01-24T18:07:27.672565"
     },
     {
       "test": "Quote for BMW.DEX",
       "success": true,
       "details": "Status: 200",
-      "timestamp": "2026-01-24T17:53:16.729059"
+      "timestamp": "2026-01-24T18:07:27.803540"
     },
     {
       "test": "BMW.DEX Has Currency",
       "success": true,
       "details": "Currency: EUR, Mock: True",
-      "timestamp": "2026-01-24T17:53:16.729705"
+      "timestamp": "2026-01-24T18:07:27.804168"
     },
     {
       "test": "Quote for SHEL.LON",
       "success": true,
       "details": "Status: 200",
-      "timestamp": "2026-01-24T17:53:16.866106"
+      "timestamp": "2026-01-24T18:07:27.949738"
     },
     {
       "test": "SHEL.LON Has Currency",
       "success": true,
       "details": "Currency: GBP, Mock: True",
-      "timestamp": "2026-01-24T17:53:16.866750"
+      "timestamp": "2026-01-24T18:07:27.950381"
     },
     {
       "test": "Quote for OR.PAR",
       "success": true,
       "details": "Status: 200",
-      "timestamp": "2026-01-24T17:53:17.016802"
+      "timestamp": "2026-01-24T18:07:28.098224"
     },
     {
       "test": "OR.PAR Has Currency",
       "success": true,
       "details": "Currency: EUR, Mock: True",
-      "timestamp": "2026-01-24T17:53:17.017404"
+      "timestamp": "2026-01-24T18:07:28.098993"
     },
     {
       "test": "Quote for ASML.AMS",
       "success": true,
       "details": "Status: 200",
-      "timestamp": "2026-01-24T17:53:17.208852"
+      "timestamp": "2026-01-24T18:07:28.226805"
     },
     {
       "test": "ASML.AMS Has Currency",
       "success": true,
       "details": "Currency: EUR, Mock: True",
-      "timestamp": "2026-01-24T17:53:17.209451"
+      "timestamp": "2026-01-24T18:07:28.227409"
     },
     {
       "test": "Quote for NESN.SWX",
       "success": true,
       "details": "Status: 200",
-      "timestamp": "2026-01-24T17:53:17.367963"
+      "timestamp": "2026-01-24T18:07:28.368461"
     },
     {
       "test": "NESN.SWX Has Currency",
       "success": true,
       "details": "Currency: CHF, Mock: True",
-      "timestamp": "2026-01-24T17:53:17.368721"
+      "timestamp": "2026-01-24T18:07:28.368979"
     },
     {
       "test": "Quote for ENI.MIL",
       "success": true,
       "details": "Status: 200",
-      "timestamp": "2026-01-24T17:53:17.520866"
+      "timestamp": "2026-01-24T18:07:28.494327"
     },
     {
       "test": "ENI.MIL Has Currency",
       "success": true,
       "details": "Currency: EUR, Mock: True",
-      "timestamp": "2026-01-24T17:53:17.522711"
+      "timestamp": "2026-01-24T18:07:28.494982"
     },
     {
       "test": "Quote for SAN.MAD",
       "success": true,
       "details": "Status: 200",
-      "timestamp": "2026-01-24T17:53:17.661559"
+      "timestamp": "2026-01-24T18:07:28.613943"
     },
     {
       "test": "SAN.MAD Has Currency",
       "success": true,
       "details": "Currency: EUR, Mock: True",
-      "timestamp": "2026-01-24T17:53:17.662166"
+      "timestamp": "2026-01-24T18:07:28.614421"
     },
     {
       "test": "Quote for NOVO-B.CPH",
       "success": true,
       "details": "Status: 200",
-      "timestamp": "2026-01-24T17:53:17.802693"
+      "timestamp": "2026-01-24T18:07:28.773882"
     },
     {
       "test": "NOVO-B.CPH Has Currency",
       "success": true,
       "details": "Currency: DKK, Mock: True",
-      "timestamp": "2026-01-24T17:53:17.803467"
+      "timestamp": "2026-01-24T18:07:28.774562"
     },
     {
       "test": "Quote for VOLV-B.STO",
       "success": true,
       "details": "Status: 200",
-      "timestamp": "2026-01-24T17:53:17.968155"
+      "timestamp": "2026-01-24T18:07:28.910817"
     },
     {
       "test": "VOLV-B.STO Has Currency",
       "success": true,
       "details": "Currency: SEK, Mock: True",
-      "timestamp": "2026-01-24T17:53:17.968743"
+      "timestamp": "2026-01-24T18:07:28.911450"
     },
     {
       "test": "Quote for EQNR.OSL",
       "success": true,
       "details": "Status: 200",
-      "timestamp": "2026-01-24T17:53:18.141445"
+      "timestamp": "2026-01-24T18:07:29.051753"
     },
     {
       "test": "EQNR.OSL Has Currency",
       "success": true,
       "details": "Currency: NOK, Mock: True",
-      "timestamp": "2026-01-24T17:53:18.142141"
+      "timestamp": "2026-01-24T18:07:29.052467"
     },
     {
       "test": "European Search - Shell",
       "success": true,
       "details": "Status: 200",
-      "timestamp": "2026-01-24T17:53:18.282359"
+      "timestamp": "2026-01-24T18:07:29.208841"
     },
     {
       "test": "European Search - BMW",
       "success": true,
       "details": "Status: 200",
-      "timestamp": "2026-01-24T17:53:18.422437"
+      "timestamp": "2026-01-24T18:07:29.343053"
     },
     {
       "test": "European Search - ASML",
       "success": true,
       "details": "Status: 200",
-      "timestamp": "2026-01-24T17:53:18.571856"
+      "timestamp": "2026-01-24T18:07:29.466530"
     },
     {
       "test": "European Search - Nestle",
       "success": true,
       "details": "Status: 200",
-      "timestamp": "2026-01-24T17:53:18.733070"
+      "timestamp": "2026-01-24T18:07:29.588591"
     },
     {
       "test": "European Search - Volkswagen",
       "success": true,
       "details": "Status: 200",
-      "timestamp": "2026-01-24T17:53:18.857425"
+      "timestamp": "2026-01-24T18:07:29.720007"
     },
     {
       "test": "Get Holdings (Empty)",
       "success": true,
       "details": "Status: 200",
-      "timestamp": "2026-01-24T17:53:18.889819"
+      "timestamp": "2026-01-24T18:07:29.751040"
     },
     {
       "test": "Get Holdings (Empty)",
       "success": true,
       "details": "Status: 200",
-      "timestamp": "2026-01-24T17:53:18.929723"
+      "timestamp": "2026-01-24T18:07:29.785687"
     },
     {
       "test": "Create US Holding",
       "success": true,
       "details": "Status: 200",
-      "timestamp": "2026-01-24T17:53:18.968950"
+      "timestamp": "2026-01-24T18:07:29.828369"
     },
     {
       "test": "Create European Holding (BMW.DEX)",
       "success": true,
       "details": "Status: 200",
-      "timestamp": "2026-01-24T17:53:19.007054"
+      "timestamp": "2026-01-24T18:07:29.861529"
     },
     {
       "test": "Get Holdings (After Create)",
       "success": true,
       "details": "Status: 200",
-      "timestamp": "2026-01-24T17:53:19.049223"
+      "timestamp": "2026-01-24T18:07:29.935675"
     },
     {
       "test": "Update European Holding",
       "success": true,
       "details": "Status: 200",
-      "timestamp": "2026-01-24T17:53:19.083510"
+      "timestamp": "2026-01-24T18:07:29.968960"
     },
     {
       "test": "Delete US Holding",
       "success": true,
       "details": "Status: 200",
-      "timestamp": "2026-01-24T17:53:19.116516"
+      "timestamp": "2026-01-24T18:07:30.001733"
     },
     {
       "test": "Delete European Holding",
       "success": true,
       "details": "Status: 200",
-      "timestamp": "2026-01-24T17:53:19.160042"
+      "timestamp": "2026-01-24T18:07:30.054150"
     },
     {
       "test": "Get Watchlist (Empty)",
       "success": true,
       "details": "Status: 200",
-      "timestamp": "2026-01-24T17:53:19.196327"
+      "timestamp": "2026-01-24T18:07:30.087332"
     },
     {
       "test": "Add to Watchlist",
       "success": true,
       "details": "Status: 200",
-      "timestamp": "2026-01-24T17:53:19.234655"
+      "timestamp": "2026-01-24T18:07:30.160671"
     },
     {
       "test": "Get Watchlist (After Add)",
       "success": true,
       "details": "Status: 200",
-      "timestamp": "2026-01-24T17:53:19.279088"
+      "timestamp": "2026-01-24T18:07:30.197061"
     },
     {
       "test": "Remove from Watchlist",
       "success": true,
       "details": "Status: 200",
-      "timestamp": "2026-01-24T17:53:19.315533"
+      "timestamp": "2026-01-24T18:07:30.233613"
     },
     {
-      "test": "Portfolio Summary",
+      "test": "Get Supported Currencies",
       "success": true,
       "details": "Status: 200",
-      "timestamp": "2026-01-24T17:53:19.351460"
+      "timestamp": "2026-01-24T18:07:30.269531"
+    },
+    {
+      "test": "Currency USD Available",
+      "success": true,
+      "details": "Found: ['USD', 'EUR', 'GBP', 'CHF', 'DKK', 'SEK', 'NOK']",
+      "timestamp": "2026-01-24T18:07:30.270147"
+    },
+    {
+      "test": "Currency EUR Available",
+      "success": true,
+      "details": "Found: ['USD', 'EUR', 'GBP', 'CHF', 'DKK', 'SEK', 'NOK']",
+      "timestamp": "2026-01-24T18:07:30.270166"
+    },
+    {
+      "test": "Currency GBP Available",
+      "success": true,
+      "details": "Found: ['USD', 'EUR', 'GBP', 'CHF', 'DKK', 'SEK', 'NOK']",
+      "timestamp": "2026-01-24T18:07:30.270172"
+    },
+    {
+      "test": "Currency CHF Available",
+      "success": true,
+      "details": "Found: ['USD', 'EUR', 'GBP', 'CHF', 'DKK', 'SEK', 'NOK']",
+      "timestamp": "2026-01-24T18:07:30.270177"
+    },
+    {
+      "test": "Currency DKK Available",
+      "success": true,
+      "details": "Found: ['USD', 'EUR', 'GBP', 'CHF', 'DKK', 'SEK', 'NOK']",
+      "timestamp": "2026-01-24T18:07:30.270182"
+    },
+    {
+      "test": "Currency SEK Available",
+      "success": true,
+      "details": "Found: ['USD', 'EUR', 'GBP', 'CHF', 'DKK', 'SEK', 'NOK']",
+      "timestamp": "2026-01-24T18:07:30.270187"
+    },
+    {
+      "test": "Currency NOK Available",
+      "success": true,
+      "details": "Found: ['USD', 'EUR', 'GBP', 'CHF', 'DKK', 'SEK', 'NOK']",
+      "timestamp": "2026-01-24T18:07:30.270192"
+    },
+    {
+      "test": "All 7 Currencies Present",
+      "success": true,
+      "details": "Expected: ['USD', 'EUR', 'GBP', 'CHF', 'DKK', 'SEK', 'NOK'], Found: ['USD', 'EUR', 'GBP', 'CHF', 'DKK', 'SEK', 'NOK']",
+      "timestamp": "2026-01-24T18:07:30.270203"
+    },
+    {
+      "test": "Get Exchange Rates (USD base)",
+      "success": true,
+      "details": "Status: 200",
+      "timestamp": "2026-01-24T18:07:30.301975"
+    },
+    {
+      "test": "Exchange Rates Has Base Currency",
+      "success": true,
+      "details": "Base: USD",
+      "timestamp": "2026-01-24T18:07:30.302424"
+    },
+    {
+      "test": "Exchange Rates Has Rates",
+      "success": true,
+      "details": "Rates count: 30",
+      "timestamp": "2026-01-24T18:07:30.302441"
+    },
+    {
+      "test": "Rate for USD",
+      "success": true,
+      "details": "Rate: 1.0",
+      "timestamp": "2026-01-24T18:07:30.302450"
+    },
+    {
+      "test": "Rate for EUR",
+      "success": true,
+      "details": "Rate: 0.85164",
+      "timestamp": "2026-01-24T18:07:30.302456"
+    },
+    {
+      "test": "Rate for GBP",
+      "success": true,
+      "details": "Rate: 0.73931",
+      "timestamp": "2026-01-24T18:07:30.302462"
+    },
+    {
+      "test": "Rate for CHF",
+      "success": true,
+      "details": "Rate: 0.79007",
+      "timestamp": "2026-01-24T18:07:30.302467"
+    },
+    {
+      "test": "Rate for DKK",
+      "success": true,
+      "details": "Rate: 6.3606",
+      "timestamp": "2026-01-24T18:07:30.302471"
+    },
+    {
+      "test": "Rate for SEK",
+      "success": true,
+      "details": "Rate: 9.0023",
+      "timestamp": "2026-01-24T18:07:30.302476"
+    },
+    {
+      "test": "Rate for NOK",
+      "success": true,
+      "details": "Rate: 9.8297",
+      "timestamp": "2026-01-24T18:07:30.302480"
+    },
+    {
+      "test": "Exchange Rates (EUR base)",
+      "success": true,
+      "details": "Status: 200",
+      "timestamp": "2026-01-24T18:07:30.994582"
+    },
+    {
+      "test": "Exchange Rates (GBP base)",
+      "success": true,
+      "details": "Status: 200",
+      "timestamp": "2026-01-24T18:07:31.696875"
+    },
+    {
+      "test": "Exchange Rates (CHF base)",
+      "success": true,
+      "details": "Status: 200",
+      "timestamp": "2026-01-24T18:07:32.380420"
+    },
+    {
+      "test": "Portfolio Summary (USD)",
+      "success": true,
+      "details": "Status: 200",
+      "timestamp": "2026-01-24T18:07:32.414390"
+    },
+    {
+      "test": "Portfolio Summary (USD)",
+      "success": true,
+      "details": "Status: 200",
+      "timestamp": "2026-01-24T18:07:32.446961"
+    },
+    {
+      "test": "Display Currency Set to USD",
+      "success": true,
+      "details": "Got: USD",
+      "timestamp": "2026-01-24T18:07:32.447393"
+    },
+    {
+      "test": "Portfolio Summary (EUR)",
+      "success": true,
+      "details": "Status: 200",
+      "timestamp": "2026-01-24T18:07:32.479167"
+    },
+    {
+      "test": "Display Currency Set to EUR",
+      "success": true,
+      "details": "Got: EUR",
+      "timestamp": "2026-01-24T18:07:32.479576"
+    },
+    {
+      "test": "Portfolio Summary (GBP)",
+      "success": true,
+      "details": "Status: 200",
+      "timestamp": "2026-01-24T18:07:32.512114"
+    },
+    {
+      "test": "Display Currency Set to GBP",
+      "success": true,
+      "details": "Got: GBP",
+      "timestamp": "2026-01-24T18:07:32.512568"
+    },
+    {
+      "test": "Portfolio Summary (CHF)",
+      "success": true,
+      "details": "Status: 200",
+      "timestamp": "2026-01-24T18:07:32.544823"
+    },
+    {
+      "test": "Display Currency Set to CHF",
+      "success": true,
+      "details": "Got: CHF",
+      "timestamp": "2026-01-24T18:07:32.545582"
+    },
+    {
+      "test": "Portfolio Summary (DKK)",
+      "success": true,
+      "details": "Status: 200",
+      "timestamp": "2026-01-24T18:07:32.584939"
+    },
+    {
+      "test": "Display Currency Set to DKK",
+      "success": true,
+      "details": "Got: DKK",
+      "timestamp": "2026-01-24T18:07:32.585373"
+    },
+    {
+      "test": "Portfolio Summary (SEK)",
+      "success": true,
+      "details": "Status: 200",
+      "timestamp": "2026-01-24T18:07:32.620885"
+    },
+    {
+      "test": "Display Currency Set to SEK",
+      "success": true,
+      "details": "Got: SEK",
+      "timestamp": "2026-01-24T18:07:32.621293"
+    },
+    {
+      "test": "Portfolio Summary (NOK)",
+      "success": true,
+      "details": "Status: 200",
+      "timestamp": "2026-01-24T18:07:32.655020"
+    },
+    {
+      "test": "Display Currency Set to NOK",
+      "success": true,
+      "details": "Got: NOK",
+      "timestamp": "2026-01-24T18:07:32.655453"
+    },
+    {
+      "test": "Create Holding (AAPL)",
+      "success": true,
+      "details": "Status: 200",
+      "timestamp": "2026-01-24T18:07:32.690660"
+    },
+    {
+      "test": "Create Holding (BMW.DEX)",
+      "success": true,
+      "details": "Status: 200",
+      "timestamp": "2026-01-24T18:07:32.723631"
+    },
+    {
+      "test": "Create Holding (SHEL.LON)",
+      "success": true,
+      "details": "Status: 200",
+      "timestamp": "2026-01-24T18:07:32.757773"
+    },
+    {
+      "test": "Portfolio Summary with Mixed Holdings (USD)",
+      "success": true,
+      "details": "Status: 200",
+      "timestamp": "2026-01-24T18:07:33.131323"
+    },
+    {
+      "test": "Portfolio Value in USD",
+      "success": true,
+      "details": "Value: 74732.26 USD",
+      "timestamp": "2026-01-24T18:07:33.131910"
+    },
+    {
+      "test": "AAPL Original Currency Correct",
+      "success": true,
+      "details": "Expected: USD, Got: USD",
+      "timestamp": "2026-01-24T18:07:33.131928"
+    },
+    {
+      "test": "BMW.DEX Original Currency Correct",
+      "success": true,
+      "details": "Expected: EUR, Got: EUR",
+      "timestamp": "2026-01-24T18:07:33.131934"
+    },
+    {
+      "test": "BMW.DEX Currency Conversion Applied",
+      "success": true,
+      "details": "Original: 486.4, Converted: 571.13",
+      "timestamp": "2026-01-24T18:07:33.131940"
+    },
+    {
+      "test": "SHEL.LON Original Currency Correct",
+      "success": true,
+      "details": "Expected: GBP, Got: GBP",
+      "timestamp": "2026-01-24T18:07:33.131945"
+    },
+    {
+      "test": "SHEL.LON Currency Conversion Applied",
+      "success": true,
+      "details": "Original: 53499.6, Converted: 72364.23",
+      "timestamp": "2026-01-24T18:07:33.131949"
+    },
+    {
+      "test": "Portfolio Summary with Mixed Holdings (EUR)",
+      "success": true,
+      "details": "Status: 200",
+      "timestamp": "2026-01-24T18:07:33.463750"
+    },
+    {
+      "test": "Portfolio Value in EUR",
+      "success": true,
+      "details": "Value: 63516.79 EUR",
+      "timestamp": "2026-01-24T18:07:33.464377"
+    },
+    {
+      "test": "AAPL Original Currency Correct",
+      "success": true,
+      "details": "Expected: USD, Got: USD",
+      "timestamp": "2026-01-24T18:07:33.464400"
+    },
+    {
+      "test": "AAPL Currency Conversion Applied",
+      "success": true,
+      "details": "Original: 1787.1, Converted: 1521.97",
+      "timestamp": "2026-01-24T18:07:33.464407"
+    },
+    {
+      "test": "BMW.DEX Original Currency Correct",
+      "success": true,
+      "details": "Expected: EUR, Got: EUR",
+      "timestamp": "2026-01-24T18:07:33.464412"
+    },
+    {
+      "test": "SHEL.LON Original Currency Correct",
+      "success": true,
+      "details": "Expected: GBP, Got: GBP",
+      "timestamp": "2026-01-24T18:07:33.464416"
+    },
+    {
+      "test": "SHEL.LON Currency Conversion Applied",
+      "success": true,
+      "details": "Original: 53393.0, Converted: 61505.48",
+      "timestamp": "2026-01-24T18:07:33.464422"
+    },
+    {
+      "test": "Portfolio Summary with Mixed Holdings (GBP)",
+      "success": true,
+      "details": "Status: 200",
+      "timestamp": "2026-01-24T18:07:33.979176"
+    },
+    {
+      "test": "Portfolio Value in GBP",
+      "success": true,
+      "details": "Value: 55255.12 GBP",
+      "timestamp": "2026-01-24T18:07:33.979821"
+    },
+    {
+      "test": "AAPL Original Currency Correct",
+      "success": true,
+      "details": "Expected: USD, Got: USD",
+      "timestamp": "2026-01-24T18:07:33.979842"
+    },
+    {
+      "test": "AAPL Currency Conversion Applied",
+      "success": true,
+      "details": "Original: 1806.3, Converted: 1335.42",
+      "timestamp": "2026-01-24T18:07:33.979849"
+    },
+    {
+      "test": "BMW.DEX Original Currency Correct",
+      "success": true,
+      "details": "Expected: EUR, Got: EUR",
+      "timestamp": "2026-01-24T18:07:33.979988"
+    },
+    {
+      "test": "BMW.DEX Currency Conversion Applied",
+      "success": true,
+      "details": "Original: 489.0, Converted: 424.5",
+      "timestamp": "2026-01-24T18:07:33.979994"
+    },
+    {
+      "test": "SHEL.LON Original Currency Correct",
+      "success": true,
+      "details": "Expected: GBP, Got: GBP",
+      "timestamp": "2026-01-24T18:07:33.979999"
+    },
+    {
+      "test": "Portfolio Values Different in Different Currencies",
+      "success": true,
+      "details": "USD: 74732.26, EUR: 63516.79",
+      "timestamp": "2026-01-24T18:07:33.980009"
+    },
+    {
+      "test": "Delete Test Holding",
+      "success": true,
+      "details": "Status: 200",
+      "timestamp": "2026-01-24T18:07:34.016725"
+    },
+    {
+      "test": "Delete Test Holding",
+      "success": true,
+      "details": "Status: 200",
+      "timestamp": "2026-01-24T18:07:34.049941"
+    },
+    {
+      "test": "Delete Test Holding",
+      "success": true,
+      "details": "Status: 200",
+      "timestamp": "2026-01-24T18:07:34.089071"
     },
     {
       "test": "Get Top Cryptos",
       "success": true,
       "details": "Status: 200",
-      "timestamp": "2026-01-24T17:53:19.508321"
+      "timestamp": "2026-01-24T18:07:34.241226"
     },
     {
       "test": "Crypto Search",
       "success": true,
       "details": "Status: 200",
-      "timestamp": "2026-01-24T17:53:19.719044"
+      "timestamp": "2026-01-24T18:07:34.346941"
     },
     {
       "test": "Crypto Price",
       "success": true,
       "details": "Status: 200",
-      "timestamp": "2026-01-24T17:53:19.874229"
+      "timestamp": "2026-01-24T18:07:34.452855"
     },
     {
       "test": "Get Crypto Holdings (Empty)",
       "success": true,
       "details": "Status: 200",
-      "timestamp": "2026-01-24T17:53:19.910897"
+      "timestamp": "2026-01-24T18:07:34.492070"
     },
     {
       "test": "Create Crypto Holding",
       "success": true,
       "details": "Status: 200",
-      "timestamp": "2026-01-24T17:53:19.952051"
+      "timestamp": "2026-01-24T18:07:34.524737"
     },
     {
       "test": "Get Crypto Holdings (After Create)",
       "success": true,
       "details": "Status: 200",
-      "timestamp": "2026-01-24T17:53:19.984680"
+      "timestamp": "2026-01-24T18:07:34.558305"
     },
     {
       "test": "Update Crypto Holding",
       "success": true,
       "details": "Status: 200",
-      "timestamp": "2026-01-24T17:53:20.016899"
+      "timestamp": "2026-01-24T18:07:34.593645"
     },
     {
       "test": "Delete Crypto Holding",
       "success": true,
       "details": "Status: 200",
-      "timestamp": "2026-01-24T17:53:20.048926"
+      "timestamp": "2026-01-24T18:07:34.625751"
     },
     {
       "test": "Get Crypto Watchlist (Empty)",
       "success": true,
       "details": "Status: 200",
-      "timestamp": "2026-01-24T17:53:20.083683"
+      "timestamp": "2026-01-24T18:07:34.656171"
     },
     {
       "test": "Add to Crypto Watchlist",
       "success": true,
       "details": "Status: 200",
-      "timestamp": "2026-01-24T17:53:20.113967"
+      "timestamp": "2026-01-24T18:07:34.688868"
     },
     {
       "test": "Get Crypto Watchlist (After Add)",
       "success": true,
       "details": "Status: 200",
-      "timestamp": "2026-01-24T17:53:20.153107"
+      "timestamp": "2026-01-24T18:07:34.726642"
     },
     {
       "test": "Remove from Crypto Watchlist",
       "success": true,
       "details": "Status: 200",
-      "timestamp": "2026-01-24T17:53:20.197407"
+      "timestamp": "2026-01-24T18:07:34.761284"
     },
     {
       "test": "Crypto Portfolio Summary",
       "success": true,
       "details": "Status: 200",
-      "timestamp": "2026-01-24T17:53:20.237218"
+      "timestamp": "2026-01-24T18:07:34.792871"
     },
     {
       "test": "Get Price Alerts (Empty)",
       "success": true,
       "details": "Status: 200",
-      "timestamp": "2026-01-24T17:53:20.272656"
+      "timestamp": "2026-01-24T18:07:34.823021"
     },
     {
       "test": "Create Stock Alert",
       "success": true,
       "details": "Status: 200",
-      "timestamp": "2026-01-24T17:53:20.309548"
+      "timestamp": "2026-01-24T18:07:34.857234"
     },
     {
       "test": "Create Crypto Alert",
       "success": true,
       "details": "Status: 200",
-      "timestamp": "2026-01-24T17:53:20.345224"
+      "timestamp": "2026-01-24T18:07:34.891901"
     },
     {
       "test": "Get Price Alerts (After Create)",
       "success": true,
       "details": "Status: 200",
-      "timestamp": "2026-01-24T17:53:20.382058"
+      "timestamp": "2026-01-24T18:07:34.928883"
     },
     {
       "test": "Check Price Alerts",
       "success": true,
       "details": "Status: 200",
-      "timestamp": "2026-01-24T17:53:20.546154"
+      "timestamp": "2026-01-24T18:07:35.073778"
     },
     {
       "test": "Reset Stock Alert",
       "success": true,
       "details": "Status: 200",
-      "timestamp": "2026-01-24T17:53:20.590631"
+      "timestamp": "2026-01-24T18:07:35.112717"
     },
     {
       "test": "Delete Stock Alert",
       "success": true,
       "details": "Status: 200",
-      "timestamp": "2026-01-24T17:53:20.627257"
+      "timestamp": "2026-01-24T18:07:35.150550"
     },
     {
       "test": "Delete Crypto Alert",
       "success": true,
       "details": "Status: 200",
-      "timestamp": "2026-01-24T17:53:20.667528"
+      "timestamp": "2026-01-24T18:07:35.183950"
     }
   ],
-  "timestamp": "2026-01-24T17:53:20.668451"
+  "timestamp": "2026-01-24T18:07:35.184778"
 }
