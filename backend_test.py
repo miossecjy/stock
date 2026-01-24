@@ -146,7 +146,52 @@ class StockPortfolioAPITester:
         # Test multiple quotes with mixed US/EU
         self.run_test("Multiple Quotes - Mixed US/EU", "GET", "stocks/quotes?symbols=AAPL,BMW.DEX,SHEL.LON", 200)
 
-    def test_holdings_crud(self):
+    def test_european_stocks_specific(self):
+        """Test European stocks specific functionality"""
+        print("\n🔍 Testing European Stocks Specific Features...")
+        
+        # Test search returns European stocks with exchange field
+        search_response = self.run_test("European Stock Search Response", "GET", "stocks/search?query=BMW", 200)
+        if search_response:
+            # Check if response contains European stocks with exchange info
+            found_bmw = False
+            for stock in search_response:
+                if "BMW" in stock.get("symbol", ""):
+                    found_bmw = True
+                    exchange = stock.get("exchange", "")
+                    currency = stock.get("currency", "")
+                    self.log_test("BMW Stock Has Exchange Field", bool(exchange), f"Exchange: {exchange}")
+                    self.log_test("BMW Stock Has Currency Field", bool(currency), f"Currency: {currency}")
+                    break
+            
+            if not found_bmw:
+                self.log_test("BMW Stock Found in Search", False, "BMW not found in search results")
+        
+        # Test various European exchanges
+        european_stocks = [
+            ("BMW.DEX", "Frankfurt"),
+            ("SHEL.LON", "London"), 
+            ("OR.PAR", "Paris"),
+            ("ASML.AMS", "Amsterdam"),
+            ("NESN.SWX", "Zurich"),
+            ("ENI.MIL", "Milan"),
+            ("SAN.MAD", "Madrid"),
+            ("NOVO-B.CPH", "Copenhagen"),
+            ("VOLV-B.STO", "Stockholm"),
+            ("EQNR.OSL", "Oslo")
+        ]
+        
+        for symbol, expected_exchange in european_stocks:
+            quote_response = self.run_test(f"Quote for {symbol}", "GET", f"stocks/quote/{symbol}", 200)
+            if quote_response:
+                currency = quote_response.get("currency", "")
+                is_mock = quote_response.get("is_mock", False)
+                self.log_test(f"{symbol} Has Currency", bool(currency), f"Currency: {currency}, Mock: {is_mock}")
+        
+        # Test search with European terms
+        european_searches = ["Shell", "BMW", "ASML", "Nestle", "Volkswagen"]
+        for search_term in european_searches:
+            self.run_test(f"European Search - {search_term}", "GET", f"stocks/search?query={search_term}", 200)
         """Test holdings CRUD operations"""
         print("\n🔍 Testing Holdings CRUD...")
         
