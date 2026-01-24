@@ -235,8 +235,8 @@ export default function Holdings() {
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
-          <h1 className="font-chivo text-3xl font-bold tracking-tight">Holdings</h1>
-          <p className="text-muted-foreground mt-1">Manage your stock portfolio</p>
+          <h1 className="font-chivo text-3xl font-bold tracking-tight">{t("holdings.title")}</h1>
+          <p className="text-muted-foreground mt-1">{t("holdings.subtitle")}</p>
         </div>
         <Dialog
           open={dialogOpen}
@@ -248,23 +248,23 @@ export default function Holdings() {
           <DialogTrigger asChild>
             <Button data-testid="add-holding-btn">
               <Plus className="w-4 h-4 mr-2" />
-              Add Holding
+              {t("holdings.addHolding")}
             </Button>
           </DialogTrigger>
           <DialogContent className="sm:max-w-md">
             <DialogHeader>
               <DialogTitle className="font-chivo">
-                {editingHolding ? "Edit Holding" : "Add Holding"}
+                {editingHolding ? t("holdings.editHolding") : t("holdings.addHolding")}
               </DialogTitle>
               <DialogDescription>
                 {editingHolding
-                  ? "Update your holding details"
-                  : "Add a new stock to your portfolio"}
+                  ? t("holdings.updateDetails")
+                  : t("holdings.addNewStock")}
               </DialogDescription>
             </DialogHeader>
             <form onSubmit={handleSubmit} className="space-y-4">
               <div className="space-y-2">
-                <Label htmlFor="symbol">Stock Symbol</Label>
+                <Label htmlFor="symbol">{t("holdings.stockSymbol")}</Label>
                 {editingHolding ? (
                   <Input
                     id="symbol"
@@ -282,7 +282,7 @@ export default function Holdings() {
               </div>
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
-                  <Label htmlFor="shares">Shares</Label>
+                  <Label htmlFor="shares">{t("holdings.shares")}</Label>
                   <Input
                     id="shares"
                     type="number"
@@ -297,7 +297,7 @@ export default function Holdings() {
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="buy_price">Buy Price</Label>
+                  <Label htmlFor="buy_price">{t("holdings.buyPrice")}</Label>
                   <Input
                     id="buy_price"
                     type="number"
@@ -313,7 +313,7 @@ export default function Holdings() {
                 </div>
               </div>
               <div className="space-y-2">
-                <Label htmlFor="buy_date">Buy Date (optional)</Label>
+                <Label htmlFor="buy_date">{t("holdings.buyDate")}</Label>
                 <Input
                   id="buy_date"
                   type="date"
@@ -332,18 +332,18 @@ export default function Holdings() {
                   onClick={() => setDialogOpen(false)}
                   data-testid="cancel-holding-btn"
                 >
-                  Cancel
+                  {t("holdings.cancel")}
                 </Button>
                 <Button type="submit" disabled={submitting} data-testid="save-holding-btn">
                   {submitting ? (
                     <>
                       <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                      Saving...
+                      {t("holdings.saving")}
                     </>
                   ) : editingHolding ? (
-                    "Update"
+                    t("holdings.update")
                   ) : (
-                    "Add"
+                    t("holdings.add")
                   )}
                 </Button>
               </DialogFooter>
@@ -359,13 +359,13 @@ export default function Holdings() {
             <div className="w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center mb-4">
               <Search className="w-8 h-8 text-primary opacity-50" />
             </div>
-            <h3 className="font-chivo text-lg font-semibold mb-2">No holdings yet</h3>
+            <h3 className="font-chivo text-lg font-semibold mb-2">{t("holdings.noHoldingsYet")}</h3>
             <p className="text-muted-foreground text-center max-w-sm mb-4">
-              Start building your portfolio by adding your first stock holding.
+              {t("holdings.startBuilding")}
             </p>
             <Button onClick={() => setDialogOpen(true)} data-testid="empty-add-btn">
               <Plus className="w-4 h-4 mr-2" />
-              Add Your First Holding
+              {t("holdings.addFirstHolding")}
             </Button>
           </CardContent>
         </Card>
@@ -401,7 +401,7 @@ export default function Holdings() {
                           </span>
                         </div>
                         <p className="text-sm text-muted-foreground">
-                          {holding.shares} shares @ {currencySymbol}{holding.buy_price.toFixed(2)}
+                          {holding.shares} {t("holdings.shares")} @ {currencySymbol}{holding.buy_price.toFixed(2)}
                         </p>
                       </div>
                     </div>
@@ -410,7 +410,7 @@ export default function Holdings() {
                     <div className="flex flex-wrap items-center gap-6 md:gap-8">
                       <div className="text-left md:text-right">
                         <p className="text-xs text-muted-foreground uppercase tracking-wide">
-                          Current Price
+                          {t("holdings.currentPrice")}
                         </p>
                         <p className="font-manrope font-semibold tabular-nums">
                           {currencySymbol}{values.currentPrice.toFixed(2)}
@@ -427,7 +427,7 @@ export default function Holdings() {
 
                       <div className="text-left md:text-right">
                         <p className="text-xs text-muted-foreground uppercase tracking-wide">
-                          Market Value
+                          {t("holdings.marketValue")}
                         </p>
                         <p className="font-manrope font-semibold tabular-nums">
                           {currencySymbol}{values.marketValue.toFixed(2)}
@@ -439,7 +439,7 @@ export default function Holdings() {
 
                       <div className="text-left md:text-right">
                         <p className="text-xs text-muted-foreground uppercase tracking-wide">
-                          Gain/Loss
+                          {t("holdings.gainLoss")}
                         </p>
                         <div
                           className={`flex items-center gap-1 ${
@@ -481,7 +481,7 @@ export default function Holdings() {
                             data-testid={`edit-holding-${holding.symbol}`}
                           >
                             <Pencil className="w-4 h-4 mr-2" />
-                            Edit
+                            {t("holdings.edit")}
                           </DropdownMenuItem>
                           <DropdownMenuItem
                             onClick={() => handleDelete(holding)}
@@ -489,7 +489,7 @@ export default function Holdings() {
                             data-testid={`delete-holding-${holding.symbol}`}
                           >
                             <Trash2 className="w-4 h-4 mr-2" />
-                            Delete
+                            {t("holdings.delete")}
                           </DropdownMenuItem>
                         </DropdownMenuContent>
                       </DropdownMenu>
