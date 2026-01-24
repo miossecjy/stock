@@ -196,6 +196,13 @@ const translations = {
       yes: "Yes",
       no: "No",
     },
+    // Settings
+    settings: {
+      title: "Settings",
+      subtitle: "Manage your application preferences",
+      languageTitle: "Language",
+      languageDescription: "Choose your preferred language for the application",
+    },
   },
   fr: {
     // Navigation
@@ -206,6 +213,7 @@ const translations = {
       crypto: "Crypto",
       alerts: "Alertes",
       logout: "Déconnexion",
+      settings: "Paramètres",
     },
     // Dashboard
     dashboard: {
