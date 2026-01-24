@@ -30,6 +30,9 @@ JWT_EXPIRATION_HOURS = 24
 # Alpha Vantage
 ALPHA_VANTAGE_KEY = os.environ.get('ALPHA_VANTAGE_KEY', '5Q8X39SEJSSBSQ1V')
 
+# Supported currencies
+SUPPORTED_CURRENCIES = ["USD", "EUR", "GBP", "CHF", "DKK", "SEK", "NOK"]
+
 app = FastAPI()
 api_router = APIRouter(prefix="/api")
 security = HTTPBearer()
