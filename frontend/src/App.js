@@ -71,6 +71,7 @@ function App() {
             <Route path="holdings" element={<Holdings />} />
             <Route path="watchlist" element={<Watchlist />} />
             <Route path="crypto" element={<Crypto />} />
+            <Route path="alerts" element={<Alerts />} />
           </Route>
         </Routes>
       </BrowserRouter>
