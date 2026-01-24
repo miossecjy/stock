@@ -7,46 +7,12 @@ import { Globe, Check } from "lucide-react";
 export default function Settings() {
   const { language, setLanguage, languages, t } = useLanguage();
 
-  // Settings-specific translations
-  const settingsText = {
-    en: {
-      title: "Settings",
-      subtitle: "Manage your application preferences",
-      languageTitle: "Language",
-      languageDescription: "Choose your preferred language for the application",
-      currentLanguage: "Current language",
-    },
-    fr: {
-      title: "Paramètres",
-      subtitle: "Gérez vos préférences d'application",
-      languageTitle: "Langue",
-      languageDescription: "Choisissez votre langue préférée pour l'application",
-      currentLanguage: "Langue actuelle",
-    },
-    de: {
-      title: "Einstellungen",
-      subtitle: "Verwalten Sie Ihre Anwendungseinstellungen",
-      languageTitle: "Sprache",
-      languageDescription: "Wählen Sie Ihre bevorzugte Sprache für die Anwendung",
-      currentLanguage: "Aktuelle Sprache",
-    },
-    es: {
-      title: "Configuración",
-      subtitle: "Gestiona las preferencias de la aplicación",
-      languageTitle: "Idioma",
-      languageDescription: "Elige tu idioma preferido para la aplicación",
-      currentLanguage: "Idioma actual",
-    },
-  };
-
-  const text = settingsText[language];
-
   return (
     <div className="space-y-8" data-testid="settings-page">
       {/* Header */}
       <div>
-        <h1 className="font-chivo text-3xl font-bold tracking-tight">{text.title}</h1>
-        <p className="text-muted-foreground mt-1">{text.subtitle}</p>
+        <h1 className="font-chivo text-3xl font-bold tracking-tight">{t("settings.title")}</h1>
+        <p className="text-muted-foreground mt-1">{t("settings.subtitle")}</p>
       </div>
 
       {/* Language Settings Card */}
@@ -54,9 +20,9 @@ export default function Settings() {
         <CardHeader>
           <CardTitle className="font-chivo flex items-center gap-2">
             <Globe className="w-5 h-5 text-primary" />
-            {text.languageTitle}
+            {t("settings.languageTitle")}
           </CardTitle>
-          <CardDescription>{text.languageDescription}</CardDescription>
+          <CardDescription>{t("settings.languageDescription")}</CardDescription>
         </CardHeader>
         <CardContent>
           <RadioGroup
