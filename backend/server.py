@@ -623,7 +623,48 @@ async def get_multiple_quotes(symbols: str):
 
 @api_router.get("/stocks/search")
 async def search_stocks(query: str):
-    """Search for stocks by keyword"""
+    """Search for stocks by keyword - uses Finnhub first, then Alpha Vantage, then mock"""
+    
+    # Try Finnhub first (60 req/min)
+    if FINNHUB_API_KEY:
+        try:
+            async with httpx.AsyncClient() as client:
+                response = await client.get(
+                    "https://finnhub.io/api/v1/search",
+                    params={
+                        "q": query,
+                        "token": FINNHUB_API_KEY
+                    },
+                    timeout=10.0
+                )
+                data = response.json()
+                
+                if data.get("result") and len(data["result"]) > 0:
+                    results = []
+                    for match in data["result"][:15]:
+                        symbol = match.get("symbol", "")
+                        description = match.get("description", "")
+                        stock_type = match.get("type", "")
+                        
+                        # Convert Finnhub symbol back to our format
+                        our_symbol = convert_finnhub_symbol_to_ours(symbol)
+                        exchange = get_exchange_from_symbol(our_symbol)
+                        currency = get_currency_from_symbol(our_symbol)
+                        region = get_region_from_exchange(exchange)
+                        
+                        results.append({
+                            "symbol": our_symbol,
+                            "name": description,
+                            "type": stock_type,
+                            "region": region,
+                            "currency": currency,
+                            "exchange": exchange
+                        })
+                    return results
+        except Exception as e:
+            logger.error(f"Finnhub search error: {e}")
+    
+    # Fallback to Alpha Vantage
     try:
         async with httpx.AsyncClient() as client:
             response = await client.get(
@@ -663,6 +704,46 @@ async def search_stocks(query: str):
     except Exception as e:
         logger.error(f"Error searching stocks: {e}")
         return get_popular_stocks(query)
+
+def convert_finnhub_symbol_to_ours(symbol: str) -> str:
+    """Convert Finnhub symbol format to our format"""
+    conversions = {
+        ".L": ".LON",     # London
+        ".DE": ".DEX",    # Frankfurt/XETRA
+        ".PA": ".PAR",    # Paris
+        ".AS": ".AMS",    # Amsterdam
+        ".MI": ".MIL",    # Milan
+        ".MC": ".MAD",    # Madrid
+        ".SW": ".SWX",    # Swiss
+        ".CO": ".CPH",    # Copenhagen
+        ".ST": ".STO",    # Stockholm
+        ".OL": ".OSL",    # Oslo
+        ".BR": ".BRU",    # Brussels
+    }
+    
+    for finnhub_suffix, our_suffix in conversions.items():
+        if symbol.endswith(finnhub_suffix):
+            return symbol.replace(finnhub_suffix, our_suffix)
+    
+    return symbol
+
+def get_region_from_exchange(exchange: str) -> str:
+    """Get region name from exchange"""
+    regions = {
+        "US": "United States",
+        "London": "United Kingdom",
+        "Frankfurt": "Germany",
+        "Paris": "France",
+        "Amsterdam": "Netherlands",
+        "Milan": "Italy",
+        "Madrid": "Spain",
+        "Zurich": "Switzerland",
+        "Copenhagen": "Denmark",
+        "Stockholm": "Sweden",
+        "Oslo": "Norway",
+        "Brussels": "Belgium",
+    }
+    return regions.get(exchange, "Unknown")
 
 def get_exchange_from_symbol(symbol: str) -> str:
     """Determine exchange from symbol suffix"""
