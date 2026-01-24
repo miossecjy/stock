@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback } from "react";
 import { getHoldings, createHolding, updateHolding, deleteHolding, getMultipleQuotes } from "../lib/api";
+import { useLanguage } from "../context/LanguageContext";
 import { Card, CardContent, CardHeader, CardTitle } from "../components/ui/card";
 import { Button } from "../components/ui/button";
 import { Input } from "../components/ui/input";
@@ -74,6 +75,7 @@ const getCurrencySymbol = (symbol) => {
 };
 
 export default function Holdings() {
+  const { t } = useLanguage();
   const [holdings, setHoldings] = useState([]);
   const [quotes, setQuotes] = useState({});
   const [loading, setLoading] = useState(true);
