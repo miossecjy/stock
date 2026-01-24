@@ -80,6 +80,7 @@ const showNotification = (title, body, icon = "📈") => {
 };
 
 export default function Alerts() {
+  const { t } = useLanguage();
   const [alerts, setAlerts] = useState([]);
   const [triggeredAlerts, setTriggeredAlerts] = useState([]);
   const [loading, setLoading] = useState(true);
