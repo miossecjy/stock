@@ -467,6 +467,282 @@ async def get_portfolio_summary(current_user: dict = Depends(get_current_user)):
         "holdings": holdings_with_prices
     }
 
+# ============ Crypto Data (CoinGecko) ============
+
+crypto_cache = {}
+CRYPTO_CACHE_TTL = 60  # 1 minute
+
+async def fetch_crypto_prices(coin_ids: List[str]):
+    """Fetch prices for multiple cryptocurrencies from CoinGecko"""
+    cache_key = f"crypto_prices_{','.join(sorted(coin_ids))}"
+    now = datetime.now(timezone.utc).timestamp()
+    
+    if cache_key in crypto_cache:
+        cached_data, cached_time = crypto_cache[cache_key]
+        if now - cached_time < CRYPTO_CACHE_TTL:
+            return cached_data
+    
+    try:
+        async with httpx.AsyncClient() as http_client:
+            response = await http_client.get(
+                "https://api.coingecko.com/api/v3/simple/price",
+                params={
+                    "ids": ",".join(coin_ids),
+                    "vs_currencies": "usd",
+                    "include_24hr_change": "true",
+                    "include_market_cap": "true",
+                    "include_24hr_vol": "true"
+                },
+                timeout=10.0
+            )
+            data = response.json()
+            crypto_cache[cache_key] = (data, now)
+            return data
+    except Exception as e:
+        logger.error(f"Error fetching crypto prices: {e}")
+        return {}
+
+@api_router.get("/crypto/top")
+async def get_top_cryptos():
+    """Get top cryptocurrencies by market cap"""
+    cache_key = "top_cryptos"
+    now = datetime.now(timezone.utc).timestamp()
+    
+    if cache_key in crypto_cache:
+        cached_data, cached_time = crypto_cache[cache_key]
+        if now - cached_time < CRYPTO_CACHE_TTL:
+            return cached_data
+    
+    try:
+        async with httpx.AsyncClient() as http_client:
+            response = await http_client.get(
+                "https://api.coingecko.com/api/v3/coins/markets",
+                params={
+                    "vs_currency": "usd",
+                    "order": "market_cap_desc",
+                    "per_page": 50,
+                    "page": 1,
+                    "sparkline": "false",
+                    "price_change_percentage": "24h"
+                },
+                timeout=10.0
+            )
+            data = response.json()
+            result = [
+                {
+                    "id": coin["id"],
+                    "symbol": coin["symbol"].upper(),
+                    "name": coin["name"],
+                    "current_price": coin["current_price"],
+                    "market_cap": coin["market_cap"],
+                    "market_cap_rank": coin["market_cap_rank"],
+                    "price_change_24h": coin["price_change_24h"],
+                    "price_change_percentage_24h": coin["price_change_percentage_24h"],
+                    "total_volume": coin["total_volume"],
+                    "image": coin["image"]
+                }
+                for coin in data
+            ]
+            crypto_cache[cache_key] = (result, now)
+            return result
+    except Exception as e:
+        logger.error(f"Error fetching top cryptos: {e}")
+        return get_mock_top_cryptos()
+
+def get_mock_top_cryptos():
+    """Return mock crypto data when API is unavailable"""
+    return [
+        {"id": "bitcoin", "symbol": "BTC", "name": "Bitcoin", "current_price": 67500, "market_cap": 1300000000000, "market_cap_rank": 1, "price_change_24h": 1200, "price_change_percentage_24h": 1.8, "total_volume": 28000000000, "image": ""},
+        {"id": "ethereum", "symbol": "ETH", "name": "Ethereum", "current_price": 3450, "market_cap": 415000000000, "market_cap_rank": 2, "price_change_24h": -45, "price_change_percentage_24h": -1.3, "total_volume": 15000000000, "image": ""},
+        {"id": "tether", "symbol": "USDT", "name": "Tether", "current_price": 1.0, "market_cap": 120000000000, "market_cap_rank": 3, "price_change_24h": 0, "price_change_percentage_24h": 0.01, "total_volume": 50000000000, "image": ""},
+        {"id": "binancecoin", "symbol": "BNB", "name": "BNB", "current_price": 580, "market_cap": 85000000000, "market_cap_rank": 4, "price_change_24h": 12, "price_change_percentage_24h": 2.1, "total_volume": 1200000000, "image": ""},
+        {"id": "solana", "symbol": "SOL", "name": "Solana", "current_price": 145, "market_cap": 65000000000, "market_cap_rank": 5, "price_change_24h": 5.2, "price_change_percentage_24h": 3.7, "total_volume": 2500000000, "image": ""},
+        {"id": "ripple", "symbol": "XRP", "name": "XRP", "current_price": 0.52, "market_cap": 28000000000, "market_cap_rank": 6, "price_change_24h": 0.01, "price_change_percentage_24h": 1.9, "total_volume": 1100000000, "image": ""},
+        {"id": "usd-coin", "symbol": "USDC", "name": "USD Coin", "current_price": 1.0, "market_cap": 26000000000, "market_cap_rank": 7, "price_change_24h": 0, "price_change_percentage_24h": 0.02, "total_volume": 4500000000, "image": ""},
+        {"id": "cardano", "symbol": "ADA", "name": "Cardano", "current_price": 0.45, "market_cap": 16000000000, "market_cap_rank": 8, "price_change_24h": -0.02, "price_change_percentage_24h": -4.3, "total_volume": 400000000, "image": ""},
+        {"id": "dogecoin", "symbol": "DOGE", "name": "Dogecoin", "current_price": 0.12, "market_cap": 17000000000, "market_cap_rank": 9, "price_change_24h": 0.005, "price_change_percentage_24h": 4.3, "total_volume": 800000000, "image": ""},
+        {"id": "avalanche-2", "symbol": "AVAX", "name": "Avalanche", "current_price": 35, "market_cap": 14000000000, "market_cap_rank": 10, "price_change_24h": 1.5, "price_change_percentage_24h": 4.5, "total_volume": 450000000, "image": ""},
+    ]
+
+@api_router.get("/crypto/search")
+async def search_cryptos(query: str):
+    """Search for cryptocurrencies"""
+    try:
+        async with httpx.AsyncClient() as http_client:
+            response = await http_client.get(
+                "https://api.coingecko.com/api/v3/search",
+                params={"query": query},
+                timeout=10.0
+            )
+            data = response.json()
+            return [
+                {
+                    "id": coin["id"],
+                    "symbol": coin["symbol"].upper(),
+                    "name": coin["name"],
+                    "market_cap_rank": coin.get("market_cap_rank"),
+                    "thumb": coin.get("thumb", "")
+                }
+                for coin in data.get("coins", [])[:15]
+            ]
+    except Exception as e:
+        logger.error(f"Error searching cryptos: {e}")
+        # Return top cryptos filtered by query
+        top = get_mock_top_cryptos()
+        query_lower = query.lower()
+        return [
+            {"id": c["id"], "symbol": c["symbol"], "name": c["name"], "market_cap_rank": c["market_cap_rank"], "thumb": ""}
+            for c in top if query_lower in c["symbol"].lower() or query_lower in c["name"].lower()
+        ]
+
+@api_router.get("/crypto/price/{coin_id}")
+async def get_crypto_price(coin_id: str):
+    """Get price for a single cryptocurrency"""
+    prices = await fetch_crypto_prices([coin_id])
+    if coin_id in prices:
+        return {
+            "coin_id": coin_id,
+            "price": prices[coin_id].get("usd", 0),
+            "change_24h": prices[coin_id].get("usd_24h_change", 0),
+            "market_cap": prices[coin_id].get("usd_market_cap", 0),
+            "volume_24h": prices[coin_id].get("usd_24h_vol", 0)
+        }
+    raise HTTPException(status_code=404, detail="Cryptocurrency not found")
+
+# ============ Crypto Holdings ============
+
+@api_router.get("/crypto/holdings", response_model=List[CryptoHoldingResponse])
+async def get_crypto_holdings(current_user: dict = Depends(get_current_user)):
+    holdings = await db.crypto_holdings.find({"user_id": current_user["id"]}, {"_id": 0}).to_list(1000)
+    return holdings
+
+@api_router.post("/crypto/holdings", response_model=CryptoHoldingResponse)
+async def create_crypto_holding(data: CryptoHoldingCreate, current_user: dict = Depends(get_current_user)):
+    holding_id = str(uuid.uuid4())
+    holding = {
+        "id": holding_id,
+        "coin_id": data.coin_id.lower(),
+        "symbol": data.symbol.upper(),
+        "name": data.name,
+        "amount": data.amount,
+        "buy_price": data.buy_price,
+        "buy_date": data.buy_date or datetime.now(timezone.utc).strftime("%Y-%m-%d"),
+        "user_id": current_user["id"],
+        "created_at": datetime.now(timezone.utc).isoformat()
+    }
+    await db.crypto_holdings.insert_one(holding)
+    return CryptoHoldingResponse(**holding)
+
+@api_router.put("/crypto/holdings/{holding_id}", response_model=CryptoHoldingResponse)
+async def update_crypto_holding(holding_id: str, data: CryptoHoldingUpdate, current_user: dict = Depends(get_current_user)):
+    holding = await db.crypto_holdings.find_one({"id": holding_id, "user_id": current_user["id"]}, {"_id": 0})
+    if not holding:
+        raise HTTPException(status_code=404, detail="Holding not found")
+    
+    update_data = {k: v for k, v in data.model_dump().items() if v is not None}
+    if update_data:
+        await db.crypto_holdings.update_one({"id": holding_id}, {"$set": update_data})
+        holding.update(update_data)
+    
+    return CryptoHoldingResponse(**holding)
+
+@api_router.delete("/crypto/holdings/{holding_id}")
+async def delete_crypto_holding(holding_id: str, current_user: dict = Depends(get_current_user)):
+    result = await db.crypto_holdings.delete_one({"id": holding_id, "user_id": current_user["id"]})
+    if result.deleted_count == 0:
+        raise HTTPException(status_code=404, detail="Holding not found")
+    return {"message": "Holding deleted"}
+
+# ============ Crypto Watchlist ============
+
+@api_router.get("/crypto/watchlist", response_model=List[CryptoWatchlistResponse])
+async def get_crypto_watchlist(current_user: dict = Depends(get_current_user)):
+    items = await db.crypto_watchlist.find({"user_id": current_user["id"]}, {"_id": 0}).to_list(1000)
+    return items
+
+@api_router.post("/crypto/watchlist", response_model=CryptoWatchlistResponse)
+async def add_to_crypto_watchlist(data: CryptoWatchlistItem, current_user: dict = Depends(get_current_user)):
+    coin_id = data.coin_id.lower()
+    existing = await db.crypto_watchlist.find_one({"coin_id": coin_id, "user_id": current_user["id"]})
+    if existing:
+        raise HTTPException(status_code=400, detail="Coin already in watchlist")
+    
+    item_id = str(uuid.uuid4())
+    item = {
+        "id": item_id,
+        "coin_id": coin_id,
+        "symbol": data.symbol.upper(),
+        "name": data.name,
+        "user_id": current_user["id"],
+        "added_at": datetime.now(timezone.utc).isoformat()
+    }
+    await db.crypto_watchlist.insert_one(item)
+    return CryptoWatchlistResponse(**item)
+
+@api_router.delete("/crypto/watchlist/{coin_id}")
+async def remove_from_crypto_watchlist(coin_id: str, current_user: dict = Depends(get_current_user)):
+    result = await db.crypto_watchlist.delete_one({"coin_id": coin_id.lower(), "user_id": current_user["id"]})
+    if result.deleted_count == 0:
+        raise HTTPException(status_code=404, detail="Coin not in watchlist")
+    return {"message": "Removed from watchlist"}
+
+# ============ Crypto Portfolio Summary ============
+
+@api_router.get("/crypto/portfolio/summary")
+async def get_crypto_portfolio_summary(current_user: dict = Depends(get_current_user)):
+    holdings = await db.crypto_holdings.find({"user_id": current_user["id"]}, {"_id": 0}).to_list(1000)
+    
+    if not holdings:
+        return {
+            "total_value": 0,
+            "total_cost": 0,
+            "total_gain_loss": 0,
+            "total_gain_loss_percent": 0,
+            "holdings_count": 0,
+            "holdings": []
+        }
+    
+    # Get current prices for all holdings
+    coin_ids = list(set(h["coin_id"] for h in holdings))
+    prices = await fetch_crypto_prices(coin_ids)
+    
+    total_value = 0
+    total_cost = 0
+    holdings_with_prices = []
+    
+    for holding in holdings:
+        coin_price_data = prices.get(holding["coin_id"], {})
+        current_price = coin_price_data.get("usd", holding["buy_price"])
+        market_value = current_price * holding["amount"]
+        cost_basis = holding["buy_price"] * holding["amount"]
+        gain_loss = market_value - cost_basis
+        gain_loss_percent = ((current_price - holding["buy_price"]) / holding["buy_price"] * 100) if holding["buy_price"] > 0 else 0
+        
+        total_value += market_value
+        total_cost += cost_basis
+        
+        holdings_with_prices.append({
+            **holding,
+            "current_price": current_price,
+            "market_value": round(market_value, 2),
+            "cost_basis": round(cost_basis, 2),
+            "gain_loss": round(gain_loss, 2),
+            "gain_loss_percent": round(gain_loss_percent, 2),
+            "day_change_percent": coin_price_data.get("usd_24h_change", 0)
+        })
+    
+    total_gain_loss = total_value - total_cost
+    total_gain_loss_percent = ((total_value - total_cost) / total_cost * 100) if total_cost > 0 else 0
+    
+    return {
+        "total_value": round(total_value, 2),
+        "total_cost": round(total_cost, 2),
+        "total_gain_loss": round(total_gain_loss, 2),
+        "total_gain_loss_percent": round(total_gain_loss_percent, 2),
+        "holdings_count": len(holdings),
+        "holdings": holdings_with_prices
+    }
+
 # ============ Root ============
 
 @api_router.get("/")
