@@ -1,0 +1,424 @@
+{
+  "summary": {
+    "tests_run": 69,
+    "tests_passed": 64,
+    "success_rate": 92.7536231884058
+  },
+  "results": [
+    {
+      "test": "User Registration",
+      "success": true,
+      "details": "Status: 200",
+      "timestamp": "2026-01-24T18:38:25.340057"
+    },
+    {
+      "test": "Stock Search - AAPL",
+      "success": true,
+      "details": "Status: 200",
+      "timestamp": "2026-01-24T18:38:25.544530"
+    },
+    {
+      "test": "AAPL Found in Search Results",
+      "success": true,
+      "details": "Symbol: AAPL, Name: APPLE INC",
+      "timestamp": "2026-01-24T18:38:25.545154"
+    },
+    {
+      "test": "Stock Search - MSTR",
+      "success": true,
+      "details": "Status: 200",
+      "timestamp": "2026-01-24T18:38:25.720497"
+    },
+    {
+      "test": "MSTR Found in Search Results",
+      "success": true,
+      "details": "Symbol: MSTR, Name: STRATEGY INC",
+      "timestamp": "2026-01-24T18:38:25.721243"
+    },
+    {
+      "test": "Stock Search - BMW",
+      "success": true,
+      "details": "Status: 200",
+      "timestamp": "2026-01-24T18:38:25.856960"
+    },
+    {
+      "test": "BMW Found in Search Results",
+      "success": true,
+      "details": "Symbol: BMW.TO, Name: BAYERISCHE MOTOREN WERKE AG",
+      "timestamp": "2026-01-24T18:38:25.857588"
+    },
+    {
+      "test": "Stock Quote - AAPL",
+      "success": true,
+      "details": "Status: 200",
+      "timestamp": "2026-01-24T18:38:25.892304"
+    },
+    {
+      "test": "AAPL Quote Has Source Field",
+      "success": true,
+      "details": "Source: finnhub",
+      "timestamp": "2026-01-24T18:38:25.892867"
+    },
+    {
+      "test": "AAPL Quote Source is Finnhub",
+      "success": true,
+      "details": "Expected: finnhub, Got: finnhub",
+      "timestamp": "2026-01-24T18:38:25.892884"
+    },
+    {
+      "test": "AAPL Quote Has Valid Price",
+      "success": true,
+      "details": "Price: 248.05",
+      "timestamp": "2026-01-24T18:38:25.892893"
+    },
+    {
+      "test": "AAPL Quote Has Correct Symbol",
+      "success": true,
+      "details": "Symbol: AAPL",
+      "timestamp": "2026-01-24T18:38:25.892898"
+    },
+    {
+      "test": "Stock Quote - MSTR",
+      "success": true,
+      "details": "Status: 200",
+      "timestamp": "2026-01-24T18:38:25.929052"
+    },
+    {
+      "test": "MSTR Quote Has Source Field",
+      "success": true,
+      "details": "Source: finnhub",
+      "timestamp": "2026-01-24T18:38:25.930921"
+    },
+    {
+      "test": "MSTR Quote Source is Finnhub",
+      "success": true,
+      "details": "Expected: finnhub, Got: finnhub",
+      "timestamp": "2026-01-24T18:38:25.930947"
+    },
+    {
+      "test": "MSTR Quote Has Valid Price",
+      "success": true,
+      "details": "Price: 163.12",
+      "timestamp": "2026-01-24T18:38:25.930956"
+    },
+    {
+      "test": "MSTR Quote Has Correct Symbol",
+      "success": true,
+      "details": "Symbol: MSTR",
+      "timestamp": "2026-01-24T18:38:25.930961"
+    },
+    {
+      "test": "Stock Quote - BMW.DEX",
+      "success": true,
+      "details": "Status: 200",
+      "timestamp": "2026-01-24T18:38:26.222516"
+    },
+    {
+      "test": "BMW.DEX Quote Has Price",
+      "success": true,
+      "details": "Price: 96.91",
+      "timestamp": "2026-01-24T18:38:26.223453"
+    },
+    {
+      "test": "BMW.DEX Quote Is Mock Data",
+      "success": true,
+      "details": "Is Mock: True",
+      "timestamp": "2026-01-24T18:38:26.223477"
+    },
+    {
+      "test": "BMW.DEX Quote Has EUR Currency",
+      "success": true,
+      "details": "Currency: EUR",
+      "timestamp": "2026-01-24T18:38:26.223483"
+    },
+    {
+      "test": "BMW.DEX Quote NOT Using Finnhub (Expected)",
+      "success": true,
+      "details": "Correctly not using Finnhub for EU stock, source: ",
+      "timestamp": "2026-01-24T18:38:26.223488"
+    },
+    {
+      "test": "Multiple Quotes - Mixed",
+      "success": true,
+      "details": "Status: 200",
+      "timestamp": "2026-01-24T18:38:26.468470"
+    },
+    {
+      "test": "Multiple Quotes - AAPL Source is Finnhub",
+      "success": true,
+      "details": "AAPL Source: finnhub",
+      "timestamp": "2026-01-24T18:38:26.469215"
+    },
+    {
+      "test": "Multiple Quotes - MSTR Source is Finnhub",
+      "success": true,
+      "details": "MSTR Source: finnhub",
+      "timestamp": "2026-01-24T18:38:26.469236"
+    },
+    {
+      "test": "Multiple Quotes - BMW.DEX Is Mock",
+      "success": true,
+      "details": "BMW.DEX Is Mock: True",
+      "timestamp": "2026-01-24T18:38:26.469243"
+    },
+    {
+      "test": "Multiple Quotes - BMW.DEX Currency EUR",
+      "success": true,
+      "details": "BMW.DEX Currency: EUR",
+      "timestamp": "2026-01-24T18:38:26.469248"
+    },
+    {
+      "test": "Holdings - Get Empty",
+      "success": true,
+      "details": "Status: 200",
+      "timestamp": "2026-01-24T18:38:26.550581"
+    },
+    {
+      "test": "Holdings - Create AAPL",
+      "success": true,
+      "details": "Status: 200",
+      "timestamp": "2026-01-24T18:38:26.591803"
+    },
+    {
+      "test": "Watchlist - Add MSTR",
+      "success": true,
+      "details": "Status: 200",
+      "timestamp": "2026-01-24T18:38:26.640218"
+    },
+    {
+      "test": "Watchlist - Get",
+      "success": true,
+      "details": "Status: 200",
+      "timestamp": "2026-01-24T18:38:26.679463"
+    },
+    {
+      "test": "Watchlist - Remove MSTR",
+      "success": false,
+      "details": "Error: cannot access local variable 'response' where it is not associated with a value",
+      "timestamp": "2026-01-24T18:38:26.680009"
+    },
+    {
+      "test": "Crypto - Get Top",
+      "success": true,
+      "details": "Status: 200",
+      "timestamp": "2026-01-24T18:38:26.717533"
+    },
+    {
+      "test": "Crypto - Search Bitcoin",
+      "success": true,
+      "details": "Status: 200",
+      "timestamp": "2026-01-24T18:38:26.881656"
+    },
+    {
+      "test": "Alerts - Create Stock Alert",
+      "success": true,
+      "details": "Status: 200",
+      "timestamp": "2026-01-24T18:38:26.928174"
+    },
+    {
+      "test": "Portfolio - Summary",
+      "success": true,
+      "details": "Status: 200",
+      "timestamp": "2026-01-24T18:38:26.964387"
+    },
+    {
+      "test": "Holdings - Delete AAPL",
+      "success": false,
+      "details": "Error: cannot access local variable 'response' where it is not associated with a value",
+      "timestamp": "2026-01-24T18:38:26.965172"
+    },
+    {
+      "test": "Alerts - Delete",
+      "success": false,
+      "details": "Error: cannot access local variable 'response' where it is not associated with a value",
+      "timestamp": "2026-01-24T18:38:26.965189"
+    },
+    {
+      "test": "Create Holding - AAPL",
+      "success": true,
+      "details": "Status: 200",
+      "timestamp": "2026-01-24T18:38:26.999420"
+    },
+    {
+      "test": "Create Holding - BMW.DEX",
+      "success": true,
+      "details": "Status: 200",
+      "timestamp": "2026-01-24T18:38:27.046296"
+    },
+    {
+      "test": "Portfolio Summary - USD",
+      "success": true,
+      "details": "Status: 200",
+      "timestamp": "2026-01-24T18:38:27.285950"
+    },
+    {
+      "test": "Portfolio Currency Set to USD",
+      "success": true,
+      "details": "Currency: USD",
+      "timestamp": "2026-01-24T18:38:27.286548"
+    },
+    {
+      "test": "Portfolio Has Value in USD",
+      "success": true,
+      "details": "Value: 4059.8",
+      "timestamp": "2026-01-24T18:38:27.286567"
+    },
+    {
+      "test": "AAPL Has Original Currency",
+      "success": true,
+      "details": "Original: USD",
+      "timestamp": "2026-01-24T18:38:27.286574"
+    },
+    {
+      "test": "AAPL Has Converted Value",
+      "success": true,
+      "details": "Converted: 2480.5",
+      "timestamp": "2026-01-24T18:38:27.286579"
+    },
+    {
+      "test": "AAPL Has Original Currency",
+      "success": true,
+      "details": "Original: USD",
+      "timestamp": "2026-01-24T18:38:27.286584"
+    },
+    {
+      "test": "AAPL Has Converted Value",
+      "success": true,
+      "details": "Converted: 1240.25",
+      "timestamp": "2026-01-24T18:38:27.286589"
+    },
+    {
+      "test": "BMW.DEX Has Original Currency",
+      "success": true,
+      "details": "Original: EUR",
+      "timestamp": "2026-01-24T18:38:27.286593"
+    },
+    {
+      "test": "BMW.DEX Has Converted Value",
+      "success": true,
+      "details": "Converted: 339.05",
+      "timestamp": "2026-01-24T18:38:27.286598"
+    },
+    {
+      "test": "Portfolio Summary - EUR",
+      "success": true,
+      "details": "Status: 200",
+      "timestamp": "2026-01-24T18:38:27.546353"
+    },
+    {
+      "test": "Portfolio Currency Set to EUR",
+      "success": true,
+      "details": "Currency: EUR",
+      "timestamp": "2026-01-24T18:38:27.547075"
+    },
+    {
+      "test": "Portfolio Has Value in EUR",
+      "success": true,
+      "details": "Value: 3459.59",
+      "timestamp": "2026-01-24T18:38:27.547102"
+    },
+    {
+      "test": "AAPL Has Original Currency",
+      "success": true,
+      "details": "Original: USD",
+      "timestamp": "2026-01-24T18:38:27.547111"
+    },
+    {
+      "test": "AAPL Has Converted Value",
+      "success": true,
+      "details": "Converted: 2112.49",
+      "timestamp": "2026-01-24T18:38:27.547117"
+    },
+    {
+      "test": "AAPL Has Original Currency",
+      "success": true,
+      "details": "Original: USD",
+      "timestamp": "2026-01-24T18:38:27.547125"
+    },
+    {
+      "test": "AAPL Has Converted Value",
+      "success": true,
+      "details": "Converted: 1056.25",
+      "timestamp": "2026-01-24T18:38:27.547130"
+    },
+    {
+      "test": "BMW.DEX Has Original Currency",
+      "success": true,
+      "details": "Original: EUR",
+      "timestamp": "2026-01-24T18:38:27.547135"
+    },
+    {
+      "test": "BMW.DEX Has Converted Value",
+      "success": true,
+      "details": "Converted: 290.85",
+      "timestamp": "2026-01-24T18:38:27.547140"
+    },
+    {
+      "test": "Portfolio Summary - GBP",
+      "success": true,
+      "details": "Status: 200",
+      "timestamp": "2026-01-24T18:38:27.790960"
+    },
+    {
+      "test": "Portfolio Currency Set to GBP",
+      "success": true,
+      "details": "Currency: GBP",
+      "timestamp": "2026-01-24T18:38:27.791644"
+    },
+    {
+      "test": "Portfolio Has Value in GBP",
+      "success": true,
+      "details": "Value: 3009.37",
+      "timestamp": "2026-01-24T18:38:27.791667"
+    },
+    {
+      "test": "AAPL Has Original Currency",
+      "success": true,
+      "details": "Original: USD",
+      "timestamp": "2026-01-24T18:38:27.791674"
+    },
+    {
+      "test": "AAPL Has Converted Value",
+      "success": true,
+      "details": "Converted: 1833.86",
+      "timestamp": "2026-01-24T18:38:27.791679"
+    },
+    {
+      "test": "AAPL Has Original Currency",
+      "success": true,
+      "details": "Original: USD",
+      "timestamp": "2026-01-24T18:38:27.791684"
+    },
+    {
+      "test": "AAPL Has Converted Value",
+      "success": true,
+      "details": "Converted: 916.93",
+      "timestamp": "2026-01-24T18:38:27.791688"
+    },
+    {
+      "test": "BMW.DEX Has Original Currency",
+      "success": true,
+      "details": "Original: EUR",
+      "timestamp": "2026-01-24T18:38:27.791693"
+    },
+    {
+      "test": "BMW.DEX Has Converted Value",
+      "success": true,
+      "details": "Converted: 258.58",
+      "timestamp": "2026-01-24T18:38:27.791698"
+    },
+    {
+      "test": "Delete Test Holding",
+      "success": false,
+      "details": "Error: cannot access local variable 'response' where it is not associated with a value",
+      "timestamp": "2026-01-24T18:38:27.791708"
+    },
+    {
+      "test": "Delete Test Holding",
+      "success": false,
+      "details": "Error: cannot access local variable 'response' where it is not associated with a value",
+      "timestamp": "2026-01-24T18:38:27.791714"
+    }
+  ],
+  "timestamp": "2026-01-24T18:38:27.792000"
+}
