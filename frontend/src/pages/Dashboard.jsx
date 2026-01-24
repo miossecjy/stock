@@ -334,7 +334,7 @@ export default function Dashboard() {
         {/* Portfolio Performance Chart */}
         <Card className="bg-card border-border lg:col-span-2" data-testid="portfolio-chart-card">
           <CardHeader>
-            <CardTitle className="font-chivo">Portfolio Performance</CardTitle>
+            <CardTitle className="font-chivo">{t("dashboard.portfolioPerformance")}</CardTitle>
           </CardHeader>
           <CardContent>
             {hasHoldings ? (
@@ -393,19 +393,19 @@ export default function Dashboard() {
             ) : (
               <div className="h-72 flex flex-col items-center justify-center text-muted-foreground">
                 <Briefcase className="w-12 h-12 mb-4 opacity-50" />
-                <p className="text-lg font-medium">No holdings yet</p>
-                <p className="text-sm">Add stocks or crypto to see your portfolio performance</p>
+                <p className="text-lg font-medium">{t("dashboard.noHoldingsYet")}</p>
+                <p className="text-sm">{t("dashboard.addStocksOrCrypto")}</p>
                 <div className="flex gap-2 mt-4">
                   <Link to="/holdings">
                     <Button variant="outline" size="sm" data-testid="empty-add-stock-btn">
                       <Plus className="w-4 h-4 mr-2" />
-                      Add Stock
+                      {t("dashboard.addStock")}
                     </Button>
                   </Link>
                   <Link to="/crypto">
                     <Button variant="outline" size="sm" data-testid="empty-add-crypto-btn">
                       <Bitcoin className="w-4 h-4 mr-2" />
-                      Add Crypto
+                      {t("dashboard.addCrypto")}
                     </Button>
                   </Link>
                 </div>
@@ -419,7 +419,7 @@ export default function Dashboard() {
           <CardHeader>
             <CardTitle className="font-chivo flex items-center gap-2">
               <PieChart className="w-5 h-5" />
-              Allocation
+              {t("dashboard.allocation")}
             </CardTitle>
           </CardHeader>
           <CardContent>
@@ -453,18 +453,18 @@ export default function Dashboard() {
                 <div className="flex gap-6 mt-2">
                   <div className="flex items-center gap-2">
                     <div className="w-3 h-3 rounded-full bg-primary" />
-                    <span className="text-sm">Stocks ({((stockSummary?.total_value || 0) / totalPortfolioValue * 100).toFixed(1)}%)</span>
+                    <span className="text-sm">{t("dashboard.stocks")} ({((stockSummary?.total_value || 0) / totalPortfolioValue * 100).toFixed(1)}%)</span>
                   </div>
                   <div className="flex items-center gap-2">
                     <div className="w-3 h-3 rounded-full bg-warning" />
-                    <span className="text-sm">Crypto ({((cryptoSummary?.total_value || 0) / totalPortfolioValue * 100).toFixed(1)}%)</span>
+                    <span className="text-sm">{t("dashboard.crypto")} ({((cryptoSummary?.total_value || 0) / totalPortfolioValue * 100).toFixed(1)}%)</span>
                   </div>
                 </div>
               </div>
             ) : (
               <div className="h-72 flex flex-col items-center justify-center text-muted-foreground">
                 <PieChart className="w-12 h-12 mb-4 opacity-50" />
-                <p className="text-sm">Add holdings to see allocation</p>
+                <p className="text-sm">{t("dashboard.addHoldingsToSeeAllocation")}</p>
               </div>
             )}
           </CardContent>
