@@ -806,6 +806,13 @@ const translations = {
       yes: "Sí",
       no: "No",
     },
+    // Settings
+    settings: {
+      title: "Configuración",
+      subtitle: "Gestiona las preferencias de la aplicación",
+      languageTitle: "Idioma",
+      languageDescription: "Elige tu idioma preferido para la aplicación",
+    },
   },
 };
 
