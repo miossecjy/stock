@@ -128,14 +128,23 @@ class StockPortfolioAPITester:
         """Test stock-related endpoints"""
         print("\n🔍 Testing Stock Functionality...")
         
-        # Test stock search
-        self.run_test("Stock Search", "GET", "stocks/search?query=AAPL", 200)
+        # Test stock search - US stocks
+        self.run_test("Stock Search - US", "GET", "stocks/search?query=AAPL", 200)
         
-        # Test stock quote
-        self.run_test("Stock Quote", "GET", "stocks/quote/AAPL", 200)
+        # Test stock search - European stocks
+        self.run_test("Stock Search - European", "GET", "stocks/search?query=BMW", 200)
         
-        # Test multiple quotes
-        self.run_test("Multiple Quotes", "GET", "stocks/quotes?symbols=AAPL,GOOGL", 200)
+        # Test stock quote - US
+        self.run_test("Stock Quote - US", "GET", "stocks/quote/AAPL", 200)
+        
+        # Test stock quote - European (BMW.DEX)
+        self.run_test("Stock Quote - European BMW", "GET", "stocks/quote/BMW.DEX", 200)
+        
+        # Test stock quote - European (SHEL.LON)
+        self.run_test("Stock Quote - European Shell", "GET", "stocks/quote/SHEL.LON", 200)
+        
+        # Test multiple quotes with mixed US/EU
+        self.run_test("Multiple Quotes - Mixed US/EU", "GET", "stocks/quotes?symbols=AAPL,BMW.DEX,SHEL.LON", 200)
 
     def test_holdings_crud(self):
         """Test holdings CRUD operations"""
