@@ -30,8 +30,48 @@ import {
   ArrowDownRight,
   Loader2,
   Search,
+  Globe,
 } from "lucide-react";
 import StockSearch from "../components/StockSearch";
+
+// Exchange color mapping
+const exchangeColors = {
+  "US": "bg-blue-500/10 text-blue-400 border-blue-500/20",
+  "London": "bg-red-500/10 text-red-400 border-red-500/20",
+  "Frankfurt": "bg-yellow-500/10 text-yellow-400 border-yellow-500/20",
+  "Paris": "bg-indigo-500/10 text-indigo-400 border-indigo-500/20",
+  "Amsterdam": "bg-orange-500/10 text-orange-400 border-orange-500/20",
+  "Zurich": "bg-emerald-500/10 text-emerald-400 border-emerald-500/20",
+  "Milan": "bg-green-500/10 text-green-400 border-green-500/20",
+  "Madrid": "bg-amber-500/10 text-amber-400 border-amber-500/20",
+  "Copenhagen": "bg-rose-500/10 text-rose-400 border-rose-500/20",
+  "Stockholm": "bg-cyan-500/10 text-cyan-400 border-cyan-500/20",
+  "Oslo": "bg-sky-500/10 text-sky-400 border-sky-500/20",
+};
+
+const getExchangeFromSymbol = (symbol) => {
+  const suffixMap = {
+    ".LON": "London", ".DEX": "Frankfurt", ".PAR": "Paris",
+    ".AMS": "Amsterdam", ".SWX": "Zurich", ".MIL": "Milan",
+    ".MAD": "Madrid", ".CPH": "Copenhagen", ".STO": "Stockholm",
+    ".OSL": "Oslo", ".BRU": "Brussels", ".VIE": "Vienna",
+  };
+  for (const [suffix, exchange] of Object.entries(suffixMap)) {
+    if (symbol.includes(suffix)) return exchange;
+  }
+  return "US";
+};
+
+const getCurrencySymbol = (symbol) => {
+  if (symbol.includes(".LON")) return "£";
+  if (symbol.includes(".SWX")) return "CHF ";
+  if (symbol.includes(".CPH")) return "kr ";
+  if (symbol.includes(".STO")) return "kr ";
+  if (symbol.includes(".OSL")) return "kr ";
+  if (symbol.includes(".DEX") || symbol.includes(".PAR") || symbol.includes(".AMS") || 
+      symbol.includes(".MIL") || symbol.includes(".MAD") || symbol.includes(".BRU")) return "€";
+  return "$";
+};
 
 export default function Holdings() {
   const [holdings, setHoldings] = useState([]);
