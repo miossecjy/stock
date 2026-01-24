@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback } from "react";
 import { Link } from "react-router-dom";
 import { getPortfolioSummary, getSupportedCurrencies, getCryptoPortfolioSummary } from "../lib/api";
+import { useLanguage } from "../context/LanguageContext";
 import { Card, CardContent, CardHeader, CardTitle } from "../components/ui/card";
 import { Button } from "../components/ui/button";
 import { Skeleton } from "../components/ui/skeleton";
@@ -51,6 +52,7 @@ const currencySymbols = {
 const COLORS = ["hsl(var(--primary))", "hsl(var(--warning))"];
 
 export default function Dashboard() {
+  const { t } = useLanguage();
   const [stockSummary, setStockSummary] = useState(null);
   const [cryptoSummary, setCryptoSummary] = useState(null);
   const [loading, setLoading] = useState(true);
