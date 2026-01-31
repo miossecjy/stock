@@ -336,6 +336,140 @@ async def login(data: UserLogin):
 async def get_me(current_user: dict = Depends(get_current_user)):
     return UserResponse(**current_user)
 
+# ============ API Settings Routes ============
+
+async def get_user_api_settings(user_id: str) -> dict:
+    """Get user's API settings or create default"""
+    settings = await db.api_settings.find_one({"user_id": user_id}, {"_id": 0})
+    if settings:
+        return settings
+    
+    # Create default settings
+    default_settings = {
+        "user_id": user_id,
+        "stock_provider_priority": ["yahoo", "finnhub", "alphavantage"],
+        "crypto_provider": "coingecko",
+        "finnhub_api_key": None,
+        "alphavantage_api_key": None,
+        "use_custom_keys": False,
+        "created_at": datetime.now(timezone.utc).isoformat()
+    }
+    await db.api_settings.insert_one(default_settings)
+    return default_settings
+
+@api_router.get("/settings/api")
+async def get_api_settings(current_user: dict = Depends(get_current_user)):
+    """Get user's API settings"""
+    settings = await get_user_api_settings(current_user["id"])
+    return {
+        "stock_provider_priority": settings.get("stock_provider_priority", ["yahoo", "finnhub", "alphavantage"]),
+        "crypto_provider": settings.get("crypto_provider", "coingecko"),
+        "finnhub_api_key_set": bool(settings.get("finnhub_api_key")),
+        "alphavantage_api_key_set": bool(settings.get("alphavantage_api_key")),
+        "use_custom_keys": settings.get("use_custom_keys", False),
+        "available_stock_providers": STOCK_PROVIDERS,
+        "available_crypto_providers": CRYPTO_PROVIDERS,
+    }
+
+@api_router.put("/settings/api")
+async def update_api_settings(data: APISettingsUpdate, current_user: dict = Depends(get_current_user)):
+    """Update user's API settings"""
+    settings = await get_user_api_settings(current_user["id"])
+    
+    update_data = {}
+    
+    if data.stock_provider_priority is not None:
+        # Validate providers
+        valid_providers = [p["id"] for p in STOCK_PROVIDERS]
+        for p in data.stock_provider_priority:
+            if p not in valid_providers:
+                raise HTTPException(status_code=400, detail=f"Invalid provider: {p}")
+        update_data["stock_provider_priority"] = data.stock_provider_priority
+    
+    if data.crypto_provider is not None:
+        valid_crypto = [p["id"] for p in CRYPTO_PROVIDERS]
+        if data.crypto_provider not in valid_crypto:
+            raise HTTPException(status_code=400, detail=f"Invalid crypto provider: {data.crypto_provider}")
+        update_data["crypto_provider"] = data.crypto_provider
+    
+    if data.finnhub_api_key is not None:
+        update_data["finnhub_api_key"] = data.finnhub_api_key if data.finnhub_api_key else None
+    
+    if data.alphavantage_api_key is not None:
+        update_data["alphavantage_api_key"] = data.alphavantage_api_key if data.alphavantage_api_key else None
+    
+    if data.use_custom_keys is not None:
+        update_data["use_custom_keys"] = data.use_custom_keys
+    
+    if update_data:
+        await db.api_settings.update_one(
+            {"user_id": current_user["id"]},
+            {"$set": update_data}
+        )
+        settings.update(update_data)
+    
+    return {
+        "stock_provider_priority": settings.get("stock_provider_priority", ["yahoo", "finnhub", "alphavantage"]),
+        "crypto_provider": settings.get("crypto_provider", "coingecko"),
+        "finnhub_api_key_set": bool(settings.get("finnhub_api_key")),
+        "alphavantage_api_key_set": bool(settings.get("alphavantage_api_key")),
+        "use_custom_keys": settings.get("use_custom_keys", False),
+    }
+
+@api_router.post("/settings/api/test/{provider}")
+async def test_api_provider(provider: str, current_user: dict = Depends(get_current_user)):
+    """Test an API provider connection"""
+    settings = await get_user_api_settings(current_user["id"])
+    
+    if provider == "yahoo":
+        # Test Yahoo Finance
+        result = fetch_stock_quote_yahoo("AAPL")
+        if result:
+            return {"success": True, "message": "Yahoo Finance is working", "sample": {"symbol": result["symbol"], "price": result["price"]}}
+        return {"success": False, "message": "Yahoo Finance failed to fetch data"}
+    
+    elif provider == "finnhub":
+        api_key = settings.get("finnhub_api_key") if settings.get("use_custom_keys") else FINNHUB_API_KEY
+        if not api_key:
+            return {"success": False, "message": "Finnhub API key not configured"}
+        result = await fetch_stock_quote_finnhub("AAPL")
+        if result:
+            return {"success": True, "message": "Finnhub is working", "sample": {"symbol": result["symbol"], "price": result["price"]}}
+        return {"success": False, "message": "Finnhub failed to fetch data"}
+    
+    elif provider == "alphavantage":
+        api_key = settings.get("alphavantage_api_key") if settings.get("use_custom_keys") else ALPHA_VANTAGE_KEY
+        if not api_key:
+            return {"success": False, "message": "Alpha Vantage API key not configured"}
+        # Quick test
+        try:
+            async with httpx.AsyncClient() as client:
+                response = await client.get(
+                    "https://www.alphavantage.co/query",
+                    params={"function": "GLOBAL_QUOTE", "symbol": "AAPL", "apikey": api_key},
+                    timeout=10.0
+                )
+                data = response.json()
+                if "Global Quote" in data and data["Global Quote"]:
+                    return {"success": True, "message": "Alpha Vantage is working"}
+                elif "Note" in data:
+                    return {"success": False, "message": "Alpha Vantage rate limit reached"}
+                return {"success": False, "message": "Alpha Vantage returned no data"}
+        except Exception as e:
+            return {"success": False, "message": f"Alpha Vantage error: {str(e)}"}
+    
+    elif provider == "coingecko":
+        try:
+            async with httpx.AsyncClient() as client:
+                response = await client.get("https://api.coingecko.com/api/v3/ping", timeout=10.0)
+                if response.status_code == 200:
+                    return {"success": True, "message": "CoinGecko is working"}
+                return {"success": False, "message": "CoinGecko returned error"}
+        except Exception as e:
+            return {"success": False, "message": f"CoinGecko error: {str(e)}"}
+    
+    raise HTTPException(status_code=400, detail=f"Unknown provider: {provider}")
+
 # ============ Portfolio Routes ============
 
 @api_router.get("/portfolios", response_model=List[PortfolioResponse])
