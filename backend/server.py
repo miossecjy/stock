@@ -304,15 +304,156 @@ async def login(data: UserLogin):
 async def get_me(current_user: dict = Depends(get_current_user)):
     return UserResponse(**current_user)
 
+# ============ Portfolio Routes ============
+
+@api_router.get("/portfolios", response_model=List[PortfolioResponse])
+async def get_portfolios(current_user: dict = Depends(get_current_user)):
+    """Get all portfolios for current user"""
+    # Ensure default portfolio exists
+    await get_or_create_default_portfolio(current_user["id"])
+    portfolios = await db.portfolios.find({"user_id": current_user["id"]}, {"_id": 0}).to_list(100)
+    return portfolios
+
+@api_router.post("/portfolios", response_model=PortfolioResponse)
+async def create_portfolio(data: PortfolioCreate, current_user: dict = Depends(get_current_user)):
+    """Create a new portfolio"""
+    portfolio_id = str(uuid.uuid4())
+    portfolio = {
+        "id": portfolio_id,
+        "name": data.name,
+        "description": data.description,
+        "color": data.color or "#7c3aed",
+        "icon": data.icon or "briefcase",
+        "user_id": current_user["id"],
+        "is_default": False,
+        "created_at": datetime.now(timezone.utc).isoformat()
+    }
+    await db.portfolios.insert_one(portfolio)
+    return PortfolioResponse(**portfolio)
+
+@api_router.put("/portfolios/{portfolio_id}", response_model=PortfolioResponse)
+async def update_portfolio(portfolio_id: str, data: PortfolioUpdate, current_user: dict = Depends(get_current_user)):
+    """Update a portfolio"""
+    portfolio = await db.portfolios.find_one({"id": portfolio_id, "user_id": current_user["id"]}, {"_id": 0})
+    if not portfolio:
+        raise HTTPException(status_code=404, detail="Portfolio not found")
+    
+    update_data = {k: v for k, v in data.model_dump().items() if v is not None}
+    if update_data:
+        await db.portfolios.update_one({"id": portfolio_id}, {"$set": update_data})
+        portfolio.update(update_data)
+    
+    return PortfolioResponse(**portfolio)
+
+@api_router.delete("/portfolios/{portfolio_id}")
+async def delete_portfolio(portfolio_id: str, current_user: dict = Depends(get_current_user)):
+    """Delete a portfolio (cannot delete default)"""
+    portfolio = await db.portfolios.find_one({"id": portfolio_id, "user_id": current_user["id"]}, {"_id": 0})
+    if not portfolio:
+        raise HTTPException(status_code=404, detail="Portfolio not found")
+    
+    if portfolio.get("is_default"):
+        raise HTTPException(status_code=400, detail="Cannot delete default portfolio")
+    
+    # Move holdings to default portfolio
+    default_portfolio = await get_or_create_default_portfolio(current_user["id"])
+    await db.holdings.update_many(
+        {"user_id": current_user["id"], "portfolio_id": portfolio_id},
+        {"$set": {"portfolio_id": default_portfolio["id"]}}
+    )
+    await db.crypto_holdings.update_many(
+        {"user_id": current_user["id"], "portfolio_id": portfolio_id},
+        {"$set": {"portfolio_id": default_portfolio["id"]}}
+    )
+    
+    await db.portfolios.delete_one({"id": portfolio_id})
+    return {"message": "Portfolio deleted successfully"}
+
+@api_router.get("/portfolios/{portfolio_id}/summary")
+async def get_portfolio_summary(
+    portfolio_id: str,
+    display_currency: str = "USD",
+    current_user: dict = Depends(get_current_user)
+):
+    """Get summary for a specific portfolio"""
+    portfolio = await db.portfolios.find_one({"id": portfolio_id, "user_id": current_user["id"]}, {"_id": 0})
+    if not portfolio:
+        raise HTTPException(status_code=404, detail="Portfolio not found")
+    
+    # Get holdings for this portfolio
+    holdings = await db.holdings.find(
+        {"user_id": current_user["id"], "portfolio_id": portfolio_id}, 
+        {"_id": 0}
+    ).to_list(1000)
+    
+    crypto_holdings = await db.crypto_holdings.find(
+        {"user_id": current_user["id"], "portfolio_id": portfolio_id}, 
+        {"_id": 0}
+    ).to_list(1000)
+    
+    # Calculate totals
+    stock_total = 0
+    stock_cost = 0
+    crypto_total = 0
+    crypto_cost = 0
+    
+    # Fetch stock quotes
+    for holding in holdings:
+        quote = await fetch_stock_quote(holding["symbol"])
+        if quote:
+            market_value = quote["price"] * holding["shares"]
+            stock_total += market_value
+            stock_cost += holding["buy_price"] * holding["shares"]
+    
+    # Fetch crypto prices
+    if crypto_holdings:
+        coin_ids = [h["coin_id"] for h in crypto_holdings]
+        prices = await get_crypto_prices(coin_ids)
+        for holding in crypto_holdings:
+            price = prices.get(holding["coin_id"], {}).get("usd", 0)
+            crypto_total += price * holding["amount"]
+            crypto_cost += holding["buy_price"] * holding["amount"]
+    
+    total_value = stock_total + crypto_total
+    total_cost = stock_cost + crypto_cost
+    total_gain_loss = total_value - total_cost
+    total_gain_loss_percent = (total_gain_loss / total_cost * 100) if total_cost > 0 else 0
+    
+    return {
+        "portfolio": portfolio,
+        "total_value": round(total_value, 2),
+        "total_cost": round(total_cost, 2),
+        "total_gain_loss": round(total_gain_loss, 2),
+        "total_gain_loss_percent": round(total_gain_loss_percent, 2),
+        "stock_value": round(stock_total, 2),
+        "crypto_value": round(crypto_total, 2),
+        "holdings_count": len(holdings),
+        "crypto_count": len(crypto_holdings),
+        "currency": display_currency
+    }
+
 # ============ Holdings Routes ============
 
 @api_router.get("/holdings", response_model=List[HoldingResponse])
-async def get_holdings(current_user: dict = Depends(get_current_user)):
-    holdings = await db.holdings.find({"user_id": current_user["id"]}, {"_id": 0}).to_list(1000)
+async def get_holdings(
+    portfolio_id: Optional[str] = None,
+    current_user: dict = Depends(get_current_user)
+):
+    """Get holdings, optionally filtered by portfolio"""
+    query = {"user_id": current_user["id"]}
+    if portfolio_id:
+        query["portfolio_id"] = portfolio_id
+    holdings = await db.holdings.find(query, {"_id": 0}).to_list(1000)
     return holdings
 
 @api_router.post("/holdings", response_model=HoldingResponse)
 async def create_holding(data: HoldingCreate, current_user: dict = Depends(get_current_user)):
+    # Get default portfolio if none specified
+    portfolio_id = data.portfolio_id
+    if not portfolio_id:
+        default_portfolio = await get_or_create_default_portfolio(current_user["id"])
+        portfolio_id = default_portfolio["id"]
+    
     holding_id = str(uuid.uuid4())
     holding = {
         "id": holding_id,
@@ -321,6 +462,7 @@ async def create_holding(data: HoldingCreate, current_user: dict = Depends(get_c
         "buy_price": data.buy_price,
         "buy_date": data.buy_date or datetime.now(timezone.utc).strftime("%Y-%m-%d"),
         "user_id": current_user["id"],
+        "portfolio_id": portfolio_id,
         "created_at": datetime.now(timezone.utc).isoformat()
     }
     await db.holdings.insert_one(holding)
