@@ -13,6 +13,7 @@ from datetime import datetime, timezone, timedelta
 import jwt
 import bcrypt
 import httpx
+import yfinance as yf
 
 ROOT_DIR = Path(__file__).parent
 load_dotenv(ROOT_DIR / '.env')
@@ -30,11 +31,30 @@ JWT_EXPIRATION_HOURS = 24
 # Alpha Vantage (fallback)
 ALPHA_VANTAGE_KEY = os.environ.get('ALPHA_VANTAGE_KEY', 'demo')
 
-# Finnhub (primary - 60 req/min)
+# Finnhub (primary for US stocks - 60 req/min)
 FINNHUB_API_KEY = os.environ.get('FINNHUB_API_KEY', '')
 
 # Supported currencies
 SUPPORTED_CURRENCIES = ["USD", "EUR", "GBP", "CHF", "DKK", "SEK", "NOK"]
+
+# Yahoo Finance symbol mappings for European exchanges
+YAHOO_EXCHANGE_SUFFIXES = {
+    "LON": ".L",      # London Stock Exchange
+    "DEX": ".DE",     # Frankfurt/Xetra
+    "PAR": ".PA",     # Paris
+    "AMS": ".AS",     # Amsterdam
+    "BRU": ".BR",     # Brussels
+    "MIL": ".MI",     # Milan
+    "MAD": ".MC",     # Madrid
+    "SWX": ".SW",     # Swiss Exchange
+    "CPH": ".CO",     # Copenhagen
+    "STO": ".ST",     # Stockholm
+    "OSL": ".OL",     # Oslo
+    "HEL": ".HE",     # Helsinki
+    "LIS": ".LS",     # Lisbon
+    "VIE": ".VI",     # Vienna
+    "WAR": ".WA",     # Warsaw
+}
 
 app = FastAPI()
 api_router = APIRouter(prefix="/api")
