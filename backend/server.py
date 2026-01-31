@@ -243,6 +243,30 @@ async def get_current_user(credentials: HTTPAuthorizationCredentials = Depends(s
 
 # ============ Auth Routes ============
 
+async def get_or_create_default_portfolio(user_id: str) -> dict:
+    """Get user's default portfolio or create one if it doesn't exist"""
+    default_portfolio = await db.portfolios.find_one(
+        {"user_id": user_id, "is_default": True}, 
+        {"_id": 0}
+    )
+    if default_portfolio:
+        return default_portfolio
+    
+    # Create default portfolio
+    portfolio_id = str(uuid.uuid4())
+    portfolio = {
+        "id": portfolio_id,
+        "name": "Main Portfolio",
+        "description": "Your default portfolio",
+        "color": "#7c3aed",
+        "icon": "briefcase",
+        "user_id": user_id,
+        "is_default": True,
+        "created_at": datetime.now(timezone.utc).isoformat()
+    }
+    await db.portfolios.insert_one(portfolio)
+    return portfolio
+
 @api_router.post("/auth/register", response_model=TokenResponse)
 async def register(data: UserCreate):
     existing = await db.users.find_one({"email": data.email})
@@ -258,6 +282,9 @@ async def register(data: UserCreate):
         "created_at": datetime.now(timezone.utc).isoformat()
     }
     await db.users.insert_one(user)
+    
+    # Create default portfolio for new user
+    await get_or_create_default_portfolio(user_id)
     
     token = create_token(user_id)
     user_response = UserResponse(id=user_id, email=data.email, name=data.name, created_at=user["created_at"])
