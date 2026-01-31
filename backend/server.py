@@ -153,11 +153,13 @@ class CryptoHoldingCreate(BaseModel):
     amount: float
     buy_price: float
     buy_date: Optional[str] = None
+    portfolio_id: Optional[str] = None
 
 class CryptoHoldingUpdate(BaseModel):
     amount: Optional[float] = None
     buy_price: Optional[float] = None
     buy_date: Optional[str] = None
+    portfolio_id: Optional[str] = None
 
 class CryptoHoldingResponse(BaseModel):
     id: str
@@ -168,6 +170,7 @@ class CryptoHoldingResponse(BaseModel):
     buy_price: float
     buy_date: str
     user_id: str
+    portfolio_id: Optional[str] = None
     created_at: str
 
 class CryptoWatchlistItem(BaseModel):
