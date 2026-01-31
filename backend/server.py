@@ -449,6 +449,89 @@ async def fetch_stock_quote_finnhub(symbol: str):
         logger.error(f"Finnhub API error for {symbol}: {e}")
         return None
 
+def convert_symbol_to_yahoo(symbol: str) -> str:
+    """Convert our symbol format to Yahoo Finance format"""
+    # Map our exchange suffixes to Yahoo suffixes
+    conversions = {
+        ".LON": ".L",      # London
+        ".DEX": ".DE",     # Frankfurt/XETRA
+        ".PAR": ".PA",     # Paris
+        ".AMS": ".AS",     # Amsterdam
+        ".MIL": ".MI",     # Milan
+        ".MAD": ".MC",     # Madrid
+        ".SWX": ".SW",     # Swiss
+        ".CPH": ".CO",     # Copenhagen
+        ".STO": ".ST",     # Stockholm
+        ".OSL": ".OL",     # Oslo
+        ".BRU": ".BR",     # Brussels
+        ".HEL": ".HE",     # Helsinki
+        ".LIS": ".LS",     # Lisbon
+        ".VIE": ".VI",     # Vienna
+    }
+    
+    for our_suffix, yahoo_suffix in conversions.items():
+        if symbol.endswith(our_suffix):
+            return symbol.replace(our_suffix, yahoo_suffix)
+    
+    return symbol  # US stocks don't need conversion
+
+def fetch_stock_quote_yahoo(symbol: str):
+    """Fetch stock quote from Yahoo Finance (free, no API key required)"""
+    try:
+        yahoo_symbol = convert_symbol_to_yahoo(symbol)
+        ticker = yf.Ticker(yahoo_symbol)
+        
+        # Get real-time info
+        info = ticker.info
+        
+        if not info or info.get("regularMarketPrice") is None:
+            # Try fast_info as fallback
+            fast_info = ticker.fast_info
+            if fast_info and hasattr(fast_info, 'last_price') and fast_info.last_price:
+                price = fast_info.last_price
+                prev_close = fast_info.previous_close if hasattr(fast_info, 'previous_close') else price
+                change = price - prev_close
+                change_percent = (change / prev_close * 100) if prev_close else 0
+                
+                return {
+                    "symbol": symbol,
+                    "price": round(price, 2),
+                    "change": round(change, 2),
+                    "change_percent": str(round(change_percent, 2)),
+                    "volume": int(fast_info.last_volume) if hasattr(fast_info, 'last_volume') else 0,
+                    "latest_trading_day": datetime.now(timezone.utc).strftime("%Y-%m-%d"),
+                    "previous_close": round(prev_close, 2),
+                    "currency": fast_info.currency if hasattr(fast_info, 'currency') else get_currency_from_symbol(symbol),
+                    "source": "yahoo_finance"
+                }
+            return None
+        
+        price = info.get("regularMarketPrice", 0)
+        prev_close = info.get("regularMarketPreviousClose", price)
+        change = info.get("regularMarketChange", price - prev_close)
+        change_percent = info.get("regularMarketChangePercent", 0)
+        
+        return {
+            "symbol": symbol,
+            "name": info.get("shortName", info.get("longName", symbol)),
+            "price": round(price, 2),
+            "change": round(change, 2),
+            "change_percent": str(round(change_percent, 2)),
+            "volume": info.get("regularMarketVolume", 0),
+            "latest_trading_day": datetime.now(timezone.utc).strftime("%Y-%m-%d"),
+            "previous_close": round(prev_close, 2),
+            "high": info.get("regularMarketDayHigh", price),
+            "low": info.get("regularMarketDayLow", price),
+            "open": info.get("regularMarketOpen", price),
+            "market_cap": info.get("marketCap"),
+            "currency": info.get("currency", get_currency_from_symbol(symbol)),
+            "exchange": info.get("exchange", ""),
+            "source": "yahoo_finance"
+        }
+    except Exception as e:
+        logger.error(f"Yahoo Finance error for {symbol}: {e}")
+        return None
+
 def convert_symbol_for_finnhub(symbol: str) -> str:
     """Convert our symbol format to Finnhub format"""
     # Finnhub uses different exchange suffixes
