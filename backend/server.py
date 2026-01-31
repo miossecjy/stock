@@ -1539,12 +1539,25 @@ async def get_crypto_price(coin_id: str):
 # ============ Crypto Holdings ============
 
 @api_router.get("/crypto/holdings", response_model=List[CryptoHoldingResponse])
-async def get_crypto_holdings(current_user: dict = Depends(get_current_user)):
-    holdings = await db.crypto_holdings.find({"user_id": current_user["id"]}, {"_id": 0}).to_list(1000)
+async def get_crypto_holdings(
+    portfolio_id: Optional[str] = None,
+    current_user: dict = Depends(get_current_user)
+):
+    """Get crypto holdings, optionally filtered by portfolio"""
+    query = {"user_id": current_user["id"]}
+    if portfolio_id:
+        query["portfolio_id"] = portfolio_id
+    holdings = await db.crypto_holdings.find(query, {"_id": 0}).to_list(1000)
     return holdings
 
 @api_router.post("/crypto/holdings", response_model=CryptoHoldingResponse)
 async def create_crypto_holding(data: CryptoHoldingCreate, current_user: dict = Depends(get_current_user)):
+    # Get default portfolio if none specified
+    portfolio_id = data.portfolio_id
+    if not portfolio_id:
+        default_portfolio = await get_or_create_default_portfolio(current_user["id"])
+        portfolio_id = default_portfolio["id"]
+    
     holding_id = str(uuid.uuid4())
     holding = {
         "id": holding_id,
@@ -1555,6 +1568,7 @@ async def create_crypto_holding(data: CryptoHoldingCreate, current_user: dict = 
         "buy_price": data.buy_price,
         "buy_date": data.buy_date or datetime.now(timezone.utc).strftime("%Y-%m-%d"),
         "user_id": current_user["id"],
+        "portfolio_id": portfolio_id,
         "created_at": datetime.now(timezone.utc).isoformat()
     }
     await db.crypto_holdings.insert_one(holding)
