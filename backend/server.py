@@ -909,15 +909,6 @@ def convert_yahoo_symbol_to_ours(symbol: str) -> str:
             return symbol.replace(yahoo_suffix, our_suffix)
     
     return symbol
-                    })
-                return results
-            elif "Note" in data or "Information" in data:
-                # API limit - return popular stocks
-                return get_popular_stocks(query)
-            return get_popular_stocks(query) if not data.get("bestMatches") else []
-    except Exception as e:
-        logger.error(f"Error searching stocks: {e}")
-        return get_popular_stocks(query)
 
 def convert_finnhub_symbol_to_ours(symbol: str) -> str:
     """Convert Finnhub symbol format to our format"""
