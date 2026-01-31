@@ -81,6 +81,38 @@ class UserResponse(BaseModel):
     name: str
     created_at: str
 
+# ============ API Settings Models ============
+
+class APIProvider(BaseModel):
+    provider: str  # "yahoo", "finnhub", "alphavantage"
+    enabled: bool = True
+    api_key: Optional[str] = None
+
+class APISettingsUpdate(BaseModel):
+    stock_provider_priority: Optional[List[str]] = None  # e.g., ["yahoo", "finnhub", "alphavantage"]
+    crypto_provider: Optional[str] = None  # "coingecko"
+    finnhub_api_key: Optional[str] = None
+    alphavantage_api_key: Optional[str] = None
+    use_custom_keys: Optional[bool] = None
+
+class APISettingsResponse(BaseModel):
+    stock_provider_priority: List[str]
+    crypto_provider: str
+    finnhub_api_key_set: bool
+    alphavantage_api_key_set: bool
+    use_custom_keys: bool
+
+# Available API providers
+STOCK_PROVIDERS = [
+    {"id": "yahoo", "name": "Yahoo Finance", "description": "Free, no API key required. Best for European stocks.", "requires_key": False},
+    {"id": "finnhub", "name": "Finnhub", "description": "60 requests/min free tier. Best for US stocks real-time.", "requires_key": True},
+    {"id": "alphavantage", "name": "Alpha Vantage", "description": "5 requests/min free tier. Good fallback option.", "requires_key": True},
+]
+
+CRYPTO_PROVIDERS = [
+    {"id": "coingecko", "name": "CoinGecko", "description": "Free, no API key required. Comprehensive crypto data.", "requires_key": False},
+]
+
 # ============ Portfolio Models ============
 
 class PortfolioCreate(BaseModel):
