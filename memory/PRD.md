@@ -95,12 +95,13 @@ Build a portal through which a user can track their stock portfolio in real time
 
 ## API Endpoints
 - Auth: /api/auth/register, /api/auth/login, /api/auth/me
-- Holdings: /api/holdings (CRUD)
+- **Portfolios: /api/portfolios (CRUD), /api/portfolios/{id}/summary**
+- Holdings: /api/holdings?portfolio_id={id} (CRUD with portfolio filter)
 - Watchlist: /api/watchlist (CRUD)
 - Stocks: /api/stocks/quote, /api/stocks/search, /api/stocks/popular
 - Currency: /api/currencies, /api/exchange-rates
 - Portfolio: /api/portfolio/summary?display_currency={code}
-- Crypto: /api/crypto/top, /api/crypto/holdings, /api/crypto/watchlist, /api/crypto/summary
+- Crypto: /api/crypto/top, /api/crypto/holdings?portfolio_id={id}, /api/crypto/watchlist, /api/crypto/summary
 - Alerts: /api/alerts (CRUD), /api/alerts/check
 
 ## Key Files
