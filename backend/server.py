@@ -559,8 +559,13 @@ def convert_symbol_for_finnhub(symbol: str) -> str:
     
     return symbol  # US stocks don't need conversion
 
+def is_european_stock(symbol: str) -> bool:
+    """Check if symbol is a European stock"""
+    european_suffixes = [".LON", ".DEX", ".PAR", ".AMS", ".MIL", ".MAD", ".SWX", ".CPH", ".STO", ".OSL", ".BRU", ".HEL", ".LIS", ".VIE"]
+    return any(symbol.endswith(suffix) for suffix in european_suffixes)
+
 async def fetch_stock_quote(symbol: str):
-    """Fetch stock quote - tries Finnhub first, then Alpha Vantage, then mock"""
+    """Fetch stock quote - uses Yahoo Finance for EU stocks, Finnhub for US stocks"""
     cache_key = f"quote_{symbol}"
     now = datetime.now(timezone.utc).timestamp()
     
@@ -569,8 +574,23 @@ async def fetch_stock_quote(symbol: str):
         if now - cached_time < CACHE_TTL:
             return cached_data
     
-    # Try Finnhub first (60 req/min)
+    result = None
+    
+    # For European stocks, try Yahoo Finance first (better coverage)
+    if is_european_stock(symbol):
+        result = fetch_stock_quote_yahoo(symbol)
+        if result:
+            stock_cache[cache_key] = (result, now)
+            return result
+    
+    # For US stocks, try Finnhub first (60 req/min)
     result = await fetch_stock_quote_finnhub(symbol)
+    if result:
+        stock_cache[cache_key] = (result, now)
+        return result
+    
+    # Fallback to Yahoo Finance for US stocks too
+    result = fetch_stock_quote_yahoo(symbol)
     if result:
         stock_cache[cache_key] = (result, now)
         return result
