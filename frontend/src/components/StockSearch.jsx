@@ -163,7 +163,7 @@ export default function StockSearch({ onSelect, selectedSymbol }) {
           className="absolute z-50 w-full mt-2 bg-card border border-border rounded-md shadow-lg p-4 text-center text-muted-foreground text-sm"
           data-testid="stock-search-empty"
         >
-          No stocks found for "{query}"
+          No stocks found for &quot;{query}&quot;
         </div>
       )}
     </div>

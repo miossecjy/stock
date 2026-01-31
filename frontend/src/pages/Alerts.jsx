@@ -349,7 +349,7 @@ export default function Alerts() {
       {notificationsEnabled && (
         <div className="flex items-center gap-2 px-4 py-2 bg-success/10 border border-success/20 rounded-md">
           <CheckCircle className="w-4 h-4 text-success" />
-          <span className="text-sm text-success">Browser notifications enabled - you'll be alerted when prices hit your targets</span>
+          <span className="text-sm text-success">Browser notifications enabled - you&apos;ll be alerted when prices hit your targets</span>
         </div>
       )}
 
