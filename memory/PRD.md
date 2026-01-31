@@ -53,6 +53,11 @@ Build a portal through which a user can track their stock portfolio in real time
 - [x] Filter holdings by portfolio
 - [x] "All Portfolios" view for combined view
 
+- [x] **API Provider Settings** - Choose and configure data providers
+- [x] Priority order for stock data providers (Yahoo, Finnhub, Alpha Vantage)
+- [x] Custom API keys support
+- [x] Test API connection feature
+
 ### Data Provider Priority
 1. **European Stocks**: Yahoo Finance (free, real-time) → Mock fallback
 2. **US Stocks**: Finnhub (60 req/min) → Yahoo Finance → Alpha Vantage → Mock
