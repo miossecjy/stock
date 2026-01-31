@@ -171,6 +171,11 @@ export default function Layout() {
           {mobileMenuOpen && (
             <nav className="md:hidden py-4 border-t border-border animate-fade-in">
               <div className="flex flex-col gap-1">
+                {/* Mobile Portfolio Selector */}
+                <div className="px-4 py-2">
+                  <PortfolioSelector />
+                </div>
+                
                 {navItems.map((item) => (
                   <NavLink
                     key={item.to}
