@@ -4,8 +4,8 @@
 Build a portal through which a user can track their stock portfolio in real time.
 
 ## User Requirements
-- Real-time stock tracking with Finnhub API
-- European stocks support (mock data due to API limitations)
+- Real-time stock tracking with multiple data providers
+- European stocks support with REAL-TIME data via Yahoo Finance
 - Crypto tracking with CoinGecko API (separate section)
 - Browser push notifications for price alerts
 - Currency conversion for unified portfolio value
@@ -15,7 +15,12 @@ Build a portal through which a user can track their stock portfolio in real time
 ## Architecture
 - **Backend**: FastAPI with MongoDB (motor async driver)
 - **Frontend**: React with Tailwind CSS, Shadcn UI components
-- **APIs**: Finnhub (US stocks), Alpha Vantage (fallback), CoinGecko (crypto), Frankfurter (exchange rates)
+- **APIs**: 
+  - Yahoo Finance (European stocks - FREE, no API key)
+  - Finnhub (US stocks - 60 req/min)
+  - Alpha Vantage (fallback)
+  - CoinGecko (crypto)
+  - Frankfurter (exchange rates)
 - **Notifications**: Browser Push API
 - **i18n**: Custom LanguageContext with localStorage persistence
 
@@ -25,10 +30,10 @@ Build a portal through which a user can track their stock portfolio in real time
 - [x] User authentication (register, login, JWT tokens)
 - [x] Stock holdings CRUD (add, edit, delete)
 - [x] Stock watchlist management
-- [x] Real-time stock quotes (Finnhub for US, mock for European)
+- [x] Real-time stock quotes (Finnhub for US, **Yahoo Finance for European**)
 - [x] Portfolio dashboard with summary cards
 - [x] Performance chart (recharts)
-- [x] **European stocks support** (mock data - London, Frankfurt, Paris, etc.)
+- [x] **European stocks support with REAL DATA via Yahoo Finance**
 - [x] **Currency conversion** (USD, EUR, GBP, CHF, DKK, SEK, NOK)
 - [x] Live exchange rates from Frankfurter API
 - [x] Currency selector with preference persistence
@@ -41,7 +46,10 @@ Build a portal through which a user can track their stock portfolio in real time
 - [x] **Language selection feature** (EN, FR, DE, ES)
 - [x] Language selector dropdown in navbar
 - [x] Dedicated Settings page for language management
-- [x] All pages use translations (Dashboard, Holdings, Watchlist, Crypto, Alerts, Login, Register)
+
+### Data Provider Priority
+1. **European Stocks**: Yahoo Finance (free, real-time) → Mock fallback
+2. **US Stocks**: Finnhub (60 req/min) → Yahoo Finance → Alpha Vantage → Mock
 
 ### Supported Languages
 - 🇬🇧 English (EN) - Default
