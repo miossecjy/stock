@@ -120,22 +120,30 @@ Build a portal through which a user can track their stock portfolio in real time
 ## Prioritized Backlog
 
 ### P1 (High Priority)
+- Historical portfolio performance charts (daily/weekly/monthly)
 - Email notifications for alerts
-- Historical portfolio performance tracking
-- CSV/data export
+- Data migration for holdings without portfolio_id
 
 ### P2 (Medium Priority)
-- Multiple portfolios support
 - News integration per stock/crypto
 - Percentage change alerts
+- CSV/data export
 
 ### Known Limitations
-- European stocks use mock data (Finnhub free tier only supports US stocks)
-- API rate limits may trigger mock data fallback
+- API rate limits may trigger mock data fallback (mitigated by user-configurable provider priority)
 - Real-time data refreshes every 60 seconds
+- Holdings created before multi-portfolio feature lack portfolio_id (migration needed)
+
+### Known Issues (Not Fixed Per User Request)
+- P0: Old holdings without portfolio_id are not visible in UI (user declined migration)
 
 ## Next Tasks
-1. Add email notifications via SendGrid/Resend
-2. Implement historical portfolio value tracking with charts
+1. Implement historical portfolio performance tracking with charts
+2. Add email notifications via SendGrid/Resend
 3. Add CSV export for holdings and transactions
-4. Explore premium API for European stocks
+
+## Session Changelog (Jan 31, 2026)
+- ✅ Verified Settings page functionality (language selection, API provider configuration)
+- ✅ Fixed lint errors in StockSearch.jsx, Alerts.jsx, AuthContext.js
+- ✅ All features tested with 100% pass rate
+- ⚠️ Lint errors remain in Shadcn UI components (calendar.jsx, command.jsx) - these are standard library files
