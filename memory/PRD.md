@@ -105,8 +105,10 @@ Build a portal through which a user can track their stock portfolio in real time
 
 ## Key Files
 - `/app/frontend/src/context/LanguageContext.js` - Translations and language provider
+- `/app/frontend/src/context/PortfolioContext.js` - Multi-portfolio state management
+- `/app/frontend/src/components/PortfolioSelector.jsx` - Portfolio dropdown component
 - `/app/frontend/src/pages/Settings.jsx` - Language settings page
-- `/app/frontend/src/components/Layout.jsx` - Navbar with language selector
+- `/app/frontend/src/components/Layout.jsx` - Navbar with language and portfolio selectors
 - `/app/backend/server.py` - FastAPI backend
 
 ## Prioritized Backlog
