@@ -11,6 +11,7 @@ import {
 } from "./ui/dropdown-menu";
 import { LayoutDashboard, Briefcase, Eye, LogOut, User, TrendingUp, Menu, Bitcoin, Bell, Settings, Globe } from "lucide-react";
 import { useState } from "react";
+import PortfolioSelector from "./PortfolioSelector";
 
 export default function Layout() {
   const { user, logout } = useAuth();
@@ -39,14 +40,21 @@ export default function Layout() {
       <header className="sticky top-0 z-50 border-b border-border bg-background/80 backdrop-blur-xl">
         <div className="container mx-auto px-4 md:px-6 lg:px-8">
           <div className="flex h-16 items-center justify-between">
-            {/* Logo */}
-            <div className="flex items-center gap-3">
-              <div className="flex items-center justify-center w-10 h-10 rounded-md bg-primary/10 border border-primary/20">
-                <TrendingUp className="w-5 h-5 text-primary" />
+            {/* Logo + Portfolio Selector */}
+            <div className="flex items-center gap-4">
+              <div className="flex items-center gap-3">
+                <div className="flex items-center justify-center w-10 h-10 rounded-md bg-primary/10 border border-primary/20">
+                  <TrendingUp className="w-5 h-5 text-primary" />
+                </div>
+                <span className="font-chivo font-bold text-xl tracking-tight hidden sm:block">
+                  StockFolio
+                </span>
               </div>
-              <span className="font-chivo font-bold text-xl tracking-tight hidden sm:block">
-                StockFolio
-              </span>
+              
+              {/* Portfolio Selector */}
+              <div className="hidden md:block">
+                <PortfolioSelector />
+              </div>
             </div>
 
             {/* Desktop Navigation */}
