@@ -746,10 +746,22 @@ async def get_multiple_quotes(symbols: str):
 
 @api_router.get("/stocks/search")
 async def search_stocks(query: str):
-    """Search for stocks by keyword - uses Finnhub first, then Alpha Vantage, then mock"""
+    """Search for stocks by keyword - uses Yahoo Finance + Finnhub + mock fallback"""
+    results = []
+    seen_symbols = set()
     
-    # Try Finnhub first (60 req/min)
-    if FINNHUB_API_KEY:
+    # Try Yahoo Finance search first (better for European stocks, no API key needed)
+    try:
+        yahoo_results = search_stocks_yahoo(query)
+        for r in yahoo_results:
+            if r["symbol"] not in seen_symbols:
+                seen_symbols.add(r["symbol"])
+                results.append(r)
+    except Exception as e:
+        logger.error(f"Yahoo search error: {e}")
+    
+    # Also try Finnhub for additional results (60 req/min)
+    if FINNHUB_API_KEY and len(results) < 10:
         try:
             async with httpx.AsyncClient() as client:
                 response = await client.get(
@@ -763,29 +775,34 @@ async def search_stocks(query: str):
                 data = response.json()
                 
                 if data.get("result") and len(data["result"]) > 0:
-                    results = []
-                    for match in data["result"][:15]:
+                    for match in data["result"][:10]:
                         symbol = match.get("symbol", "")
                         description = match.get("description", "")
                         stock_type = match.get("type", "")
                         
                         # Convert Finnhub symbol back to our format
                         our_symbol = convert_finnhub_symbol_to_ours(symbol)
-                        exchange = get_exchange_from_symbol(our_symbol)
-                        currency = get_currency_from_symbol(our_symbol)
-                        region = get_region_from_exchange(exchange)
                         
-                        results.append({
-                            "symbol": our_symbol,
-                            "name": description,
-                            "type": stock_type,
-                            "region": region,
-                            "currency": currency,
-                            "exchange": exchange
-                        })
-                    return results
+                        if our_symbol not in seen_symbols:
+                            seen_symbols.add(our_symbol)
+                            exchange = get_exchange_from_symbol(our_symbol)
+                            currency = get_currency_from_symbol(our_symbol)
+                            region = get_region_from_exchange(exchange)
+                            
+                            results.append({
+                                "symbol": our_symbol,
+                                "name": description,
+                                "type": stock_type,
+                                "region": region,
+                                "currency": currency,
+                                "exchange": exchange
+                            })
         except Exception as e:
             logger.error(f"Finnhub search error: {e}")
+    
+    # If we have results, return them
+    if results:
+        return results[:15]
     
     # Fallback to Alpha Vantage
     try:
@@ -818,6 +835,80 @@ async def search_stocks(query: str):
                         "region": region,
                         "currency": currency,
                         "exchange": exchange
+                    })
+                return results
+            elif "Note" in data or "Information" in data:
+                # API limit - return popular stocks
+                return get_popular_stocks(query)
+            return get_popular_stocks(query) if not data.get("bestMatches") else []
+    except Exception as e:
+        logger.error(f"Error searching stocks: {e}")
+        return get_popular_stocks(query)
+
+def search_stocks_yahoo(query: str) -> list:
+    """Search stocks using Yahoo Finance (free, no API key)"""
+    try:
+        # Use yfinance's built-in search capability
+        import yfinance as yf
+        
+        results = []
+        
+        # Try searching with different suffixes for European exchanges
+        suffixes = ["", ".L", ".DE", ".PA", ".AS", ".MI", ".MC", ".SW", ".CO", ".ST", ".OL"]
+        
+        for suffix in suffixes:
+            try:
+                test_symbol = query.upper() + suffix
+                ticker = yf.Ticker(test_symbol)
+                info = ticker.info
+                
+                if info and info.get("regularMarketPrice") is not None:
+                    # Convert Yahoo suffix back to our format
+                    our_symbol = convert_yahoo_symbol_to_ours(test_symbol)
+                    exchange = get_exchange_from_symbol(our_symbol)
+                    currency = info.get("currency", get_currency_from_symbol(our_symbol))
+                    
+                    results.append({
+                        "symbol": our_symbol,
+                        "name": info.get("shortName", info.get("longName", our_symbol)),
+                        "type": info.get("quoteType", "Equity"),
+                        "region": get_region_from_exchange(exchange),
+                        "currency": currency,
+                        "exchange": exchange,
+                        "market_cap": info.get("marketCap"),
+                    })
+            except:
+                continue
+        
+        return results[:10]
+    except Exception as e:
+        logger.error(f"Yahoo search error: {e}")
+        return []
+
+def convert_yahoo_symbol_to_ours(symbol: str) -> str:
+    """Convert Yahoo Finance symbol format to our format"""
+    conversions = {
+        ".L": ".LON",     # London
+        ".DE": ".DEX",    # Frankfurt/XETRA
+        ".PA": ".PAR",    # Paris
+        ".AS": ".AMS",    # Amsterdam
+        ".MI": ".MIL",    # Milan
+        ".MC": ".MAD",    # Madrid
+        ".SW": ".SWX",    # Swiss
+        ".CO": ".CPH",    # Copenhagen
+        ".ST": ".STO",    # Stockholm
+        ".OL": ".OSL",    # Oslo
+        ".BR": ".BRU",    # Brussels
+        ".HE": ".HEL",    # Helsinki
+        ".LS": ".LIS",    # Lisbon
+        ".VI": ".VIE",    # Vienna
+    }
+    
+    for yahoo_suffix, our_suffix in conversions.items():
+        if symbol.endswith(yahoo_suffix):
+            return symbol.replace(yahoo_suffix, our_suffix)
+    
+    return symbol
                     })
                 return results
             elif "Note" in data or "Information" in data:
