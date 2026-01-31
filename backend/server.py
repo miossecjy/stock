@@ -81,16 +81,44 @@ class UserResponse(BaseModel):
     name: str
     created_at: str
 
+# ============ Portfolio Models ============
+
+class PortfolioCreate(BaseModel):
+    name: str
+    description: Optional[str] = None
+    color: Optional[str] = "#7c3aed"  # Default purple
+    icon: Optional[str] = "briefcase"
+
+class PortfolioUpdate(BaseModel):
+    name: Optional[str] = None
+    description: Optional[str] = None
+    color: Optional[str] = None
+    icon: Optional[str] = None
+
+class PortfolioResponse(BaseModel):
+    id: str
+    name: str
+    description: Optional[str] = None
+    color: str
+    icon: str
+    user_id: str
+    is_default: bool = False
+    created_at: str
+
+# ============ Holding Models ============
+
 class HoldingCreate(BaseModel):
     symbol: str
     shares: float
     buy_price: float
     buy_date: Optional[str] = None
+    portfolio_id: Optional[str] = None  # If not provided, uses default portfolio
 
 class HoldingUpdate(BaseModel):
     shares: Optional[float] = None
     buy_price: Optional[float] = None
     buy_date: Optional[str] = None
+    portfolio_id: Optional[str] = None
 
 class HoldingResponse(BaseModel):
     id: str
@@ -99,6 +127,7 @@ class HoldingResponse(BaseModel):
     buy_price: float
     buy_date: str
     user_id: str
+    portfolio_id: Optional[str] = None
     created_at: str
 
 class WatchlistItem(BaseModel):
