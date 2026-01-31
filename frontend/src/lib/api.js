@@ -65,3 +65,8 @@ export const createPriceAlert = (data) => axios.post(`${API}/alerts`, data);
 export const deletePriceAlert = (id) => axios.delete(`${API}/alerts/${id}`);
 export const checkPriceAlerts = () => axios.get(`${API}/alerts/check`);
 export const resetPriceAlert = (id) => axios.post(`${API}/alerts/${id}/reset`);
+
+// API Settings
+export const getAPISettings = () => axios.get(`${API}/settings/api`);
+export const updateAPISettings = (data) => axios.put(`${API}/settings/api`, data);
+export const testAPIProvider = (provider) => axios.post(`${API}/settings/api/test/${provider}`);
