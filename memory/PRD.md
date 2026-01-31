@@ -47,6 +47,12 @@ Build a portal through which a user can track their stock portfolio in real time
 - [x] Language selector dropdown in navbar
 - [x] Dedicated Settings page for language management
 
+- [x] **Multi-portfolio support** - Create and manage multiple portfolios
+- [x] Portfolio selector in navbar (dropdown)
+- [x] Create/Edit/Delete portfolios with custom colors and icons
+- [x] Filter holdings by portfolio
+- [x] "All Portfolios" view for combined view
+
 ### Data Provider Priority
 1. **European Stocks**: Yahoo Finance (free, real-time) → Mock fallback
 2. **US Stocks**: Finnhub (60 req/min) → Yahoo Finance → Alpha Vantage → Mock
