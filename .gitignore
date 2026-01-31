@@ -1,1 +1,5 @@
 frontend/node_modules/.cache/default-development/7.pack
+-e 
+# Environment files
+*.env
+*.env.*
