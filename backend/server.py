@@ -931,8 +931,8 @@ def is_european_stock(symbol: str) -> bool:
     european_suffixes = [".LON", ".DEX", ".PAR", ".AMS", ".MIL", ".MAD", ".SWX", ".CPH", ".STO", ".OSL", ".BRU", ".HEL", ".LIS", ".VIE"]
     return any(symbol.endswith(suffix) for suffix in european_suffixes)
 
-async def fetch_stock_quote(symbol: str):
-    """Fetch stock quote - uses Yahoo Finance for EU stocks, Finnhub for US stocks"""
+async def fetch_stock_quote(symbol: str, user_id: str = None):
+    """Fetch stock quote using user's preferred API provider order"""
     cache_key = f"quote_{symbol}"
     now = datetime.now(timezone.utc).timestamp()
     
@@ -941,44 +941,97 @@ async def fetch_stock_quote(symbol: str):
         if now - cached_time < CACHE_TTL:
             return cached_data
     
+    # Get user's API settings if user_id provided
+    provider_priority = ["yahoo", "finnhub", "alphavantage"]  # Default
+    custom_finnhub_key = None
+    custom_alphavantage_key = None
+    
+    if user_id:
+        try:
+            settings = await db.api_settings.find_one({"user_id": user_id}, {"_id": 0})
+            if settings:
+                provider_priority = settings.get("stock_provider_priority", provider_priority)
+                if settings.get("use_custom_keys"):
+                    custom_finnhub_key = settings.get("finnhub_api_key")
+                    custom_alphavantage_key = settings.get("alphavantage_api_key")
+        except Exception as e:
+            logger.error(f"Error fetching user API settings: {e}")
+    
     result = None
     
-    # For European stocks, try Yahoo Finance first (better coverage)
+    # For European stocks, always try Yahoo first regardless of settings
     if is_european_stock(symbol):
         result = fetch_stock_quote_yahoo(symbol)
         if result:
             stock_cache[cache_key] = (result, now)
             return result
     
-    # For US stocks, try Finnhub first (60 req/min)
-    result = await fetch_stock_quote_finnhub(symbol)
+    # Try providers in user's preferred order
+    for provider in provider_priority:
+        if result:
+            break
+            
+        if provider == "yahoo":
+            result = fetch_stock_quote_yahoo(symbol)
+        elif provider == "finnhub":
+            api_key = custom_finnhub_key or FINNHUB_API_KEY
+            if api_key:
+                result = await fetch_stock_quote_finnhub_with_key(symbol, api_key)
+        elif provider == "alphavantage":
+            api_key = custom_alphavantage_key or ALPHA_VANTAGE_KEY
+            if api_key:
+                result = await fetch_stock_quote_alphavantage(symbol, api_key)
+    
     if result:
         stock_cache[cache_key] = (result, now)
         return result
     
-    # Fallback to Yahoo Finance for US stocks too
-    result = fetch_stock_quote_yahoo(symbol)
-    if result:
-        stock_cache[cache_key] = (result, now)
-        return result
-    
-    # Fallback to Alpha Vantage
+    # Final fallback to mock data
+    return get_mock_quote(symbol)
+
+async def fetch_stock_quote_finnhub_with_key(symbol: str, api_key: str):
+    """Fetch from Finnhub with specific API key"""
+    try:
+        finnhub_symbol = convert_symbol_for_finnhub(symbol)
+        async with httpx.AsyncClient() as client:
+            response = await client.get(
+                "https://finnhub.io/api/v1/quote",
+                params={"symbol": finnhub_symbol, "token": api_key},
+                timeout=10.0
+            )
+            data = response.json()
+            
+            if data.get("c") and data.get("c") > 0:
+                change = data.get("c", 0) - data.get("pc", 0)
+                change_percent = (change / data.get("pc", 1)) * 100 if data.get("pc") else 0
+                return {
+                    "symbol": symbol,
+                    "price": data.get("c", 0),
+                    "change": round(change, 2),
+                    "change_percent": str(round(change_percent, 2)),
+                    "volume": 0,
+                    "latest_trading_day": datetime.now(timezone.utc).strftime("%Y-%m-%d"),
+                    "previous_close": data.get("pc", 0),
+                    "source": "finnhub"
+                }
+    except Exception as e:
+        logger.error(f"Finnhub error: {e}")
+    return None
+
+async def fetch_stock_quote_alphavantage(symbol: str, api_key: str):
+    """Fetch from Alpha Vantage with specific API key"""
     try:
         async with httpx.AsyncClient() as client:
             response = await client.get(
                 "https://www.alphavantage.co/query",
-                params={
-                    "function": "GLOBAL_QUOTE",
-                    "symbol": symbol,
-                    "apikey": ALPHA_VANTAGE_KEY
-                },
+                params={"function": "GLOBAL_QUOTE", "symbol": symbol, "apikey": api_key},
                 timeout=10.0
             )
             data = response.json()
             
             if "Global Quote" in data and data["Global Quote"]:
                 quote = data["Global Quote"]
-                result = {
+                return {
                     "symbol": quote.get("01. symbol", symbol),
                     "price": float(quote.get("05. price", 0)),
                     "change": float(quote.get("09. change", 0)),
@@ -988,16 +1041,9 @@ async def fetch_stock_quote(symbol: str):
                     "previous_close": float(quote.get("08. previous close", 0)),
                     "source": "alphavantage"
                 }
-                stock_cache[cache_key] = (result, now)
-                return result
-            elif "Note" in data or "Information" in data:
-                logger.warning(f"Alpha Vantage API limit reached")
-                return get_mock_quote(symbol)
-            else:
-                return get_mock_quote(symbol)
     except Exception as e:
-        logger.error(f"Error fetching stock quote: {e}")
-        return get_mock_quote(symbol)
+        logger.error(f"Alpha Vantage error: {e}")
+    return None
 
 def get_mock_quote(symbol: str):
     """Return mock data when API is unavailable"""
