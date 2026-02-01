@@ -140,6 +140,9 @@ Build a portal through which a user can track their stock portfolio in real time
 ## Session Changelog (Feb 1, 2026)
 - ✅ Fixed bug: Holdings not linked to portfolio (missing portfolio_id in createHolding)
 - ✅ Fixed bug: Dashboard Total Portfolio showing $0.00 (missing portfolio_id in getPortfolioSummary)
+- ✅ Fixed bug: Wrong currency displayed for ISIN stocks (FR001400AED5 showed USD instead of EUR)
+  - Backend now uses currency from Yahoo Finance API response instead of symbol-based detection
+  - Frontend updated to use currency from API quote
 - ✅ All tests passing (100% backend, 100% frontend)
 
 ## Session Changelog (Jan 31, 2026)
