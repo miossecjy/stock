@@ -79,7 +79,7 @@ export default function Dashboard() {
       const portfolioId = activePortfolio?.id || null;
       const [stockRes, cryptoRes] = await Promise.all([
         getPortfolioSummary(displayCurrency, portfolioId),
-        getCryptoPortfolioSummary()
+        getCryptoPortfolioSummary(displayCurrency, portfolioId)
       ]);
       setStockSummary(stockRes.data);
       setCryptoSummary(cryptoRes.data);
