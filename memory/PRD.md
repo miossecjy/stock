@@ -105,7 +105,7 @@ Build a portal through which a user can track their stock portfolio in real time
 - Watchlist: /api/watchlist (CRUD)
 - Stocks: /api/stocks/quote, /api/stocks/search, /api/stocks/popular
 - Currency: /api/currencies, /api/exchange-rates
-- Portfolio: /api/portfolio/summary?display_currency={code}
+- Portfolio: /api/portfolio/summary?display_currency={code}&portfolio_id={id}
 - Crypto: /api/crypto/top, /api/crypto/holdings?portfolio_id={id}, /api/crypto/watchlist, /api/crypto/summary
 - Alerts: /api/alerts (CRUD), /api/alerts/check
 
@@ -122,7 +122,6 @@ Build a portal through which a user can track their stock portfolio in real time
 ### P1 (High Priority)
 - Historical portfolio performance charts (daily/weekly/monthly)
 - Email notifications for alerts
-- Data migration for holdings without portfolio_id
 
 ### P2 (Medium Priority)
 - News integration per stock/crypto
@@ -132,15 +131,16 @@ Build a portal through which a user can track their stock portfolio in real time
 ### Known Limitations
 - API rate limits may trigger mock data fallback (mitigated by user-configurable provider priority)
 - Real-time data refreshes every 60 seconds
-- Holdings created before multi-portfolio feature lack portfolio_id (migration needed)
-
-### Known Issues (Not Fixed Per User Request)
-- P0: Old holdings without portfolio_id are not visible in UI (user declined migration)
 
 ## Next Tasks
 1. Implement historical portfolio performance tracking with charts
 2. Add email notifications via SendGrid/Resend
 3. Add CSV export for holdings and transactions
+
+## Session Changelog (Feb 1, 2026)
+- ✅ Fixed bug: Holdings not linked to portfolio (missing portfolio_id in createHolding)
+- ✅ Fixed bug: Dashboard Total Portfolio showing $0.00 (missing portfolio_id in getPortfolioSummary)
+- ✅ All tests passing (100% backend, 100% frontend)
 
 ## Session Changelog (Jan 31, 2026)
 - ✅ Verified Settings page functionality (language selection, API provider configuration)
