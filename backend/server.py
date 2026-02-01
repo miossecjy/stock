@@ -1845,8 +1845,11 @@ async def remove_from_crypto_watchlist(coin_id: str, current_user: dict = Depend
 # ============ Crypto Portfolio Summary ============
 
 @api_router.get("/crypto/portfolio/summary")
-async def get_crypto_portfolio_summary(current_user: dict = Depends(get_current_user)):
-    holdings = await db.crypto_holdings.find({"user_id": current_user["id"]}, {"_id": 0}).to_list(1000)
+async def get_crypto_portfolio_summary(current_user: dict = Depends(get_current_user), display_currency: str = "USD", portfolio_id: str = None):
+    query = {"user_id": current_user["id"]}
+    if portfolio_id:
+        query["portfolio_id"] = portfolio_id
+    holdings = await db.crypto_holdings.find(query, {"_id": 0}).to_list(1000)
     
     if not holdings:
         return {
@@ -1855,8 +1858,19 @@ async def get_crypto_portfolio_summary(current_user: dict = Depends(get_current_
             "total_gain_loss": 0,
             "total_gain_loss_percent": 0,
             "holdings_count": 0,
-            "holdings": []
+            "holdings": [],
+            "display_currency": display_currency
         }
+    
+    # Get exchange rate if needed
+    exchange_rate = 1.0
+    if display_currency != "USD":
+        try:
+            rates = await fetch_exchange_rates("USD")
+            exchange_rate = rates.get(display_currency, 1.0)
+        except Exception as e:
+            print(f"Failed to get exchange rate: {e}")
+            exchange_rate = 1.0
     
     # Get current prices for all holdings
     coin_ids = list(set(h["coin_id"] for h in holdings))
@@ -1868,23 +1882,30 @@ async def get_crypto_portfolio_summary(current_user: dict = Depends(get_current_
     
     for holding in holdings:
         coin_price_data = prices.get(holding["coin_id"], {})
-        current_price = coin_price_data.get("usd", holding["buy_price"])
+        current_price_usd = coin_price_data.get("usd", holding["buy_price"])
+        
+        # Convert to display currency
+        current_price = current_price_usd * exchange_rate
+        buy_price_converted = holding["buy_price"] * exchange_rate
+        
         market_value = current_price * holding["amount"]
-        cost_basis = holding["buy_price"] * holding["amount"]
+        cost_basis = buy_price_converted * holding["amount"]
         gain_loss = market_value - cost_basis
-        gain_loss_percent = ((current_price - holding["buy_price"]) / holding["buy_price"] * 100) if holding["buy_price"] > 0 else 0
+        gain_loss_percent = ((current_price - buy_price_converted) / buy_price_converted * 100) if buy_price_converted > 0 else 0
         
         total_value += market_value
         total_cost += cost_basis
         
         holdings_with_prices.append({
             **holding,
-            "current_price": current_price,
+            "current_price": round(current_price, 2),
             "market_value": round(market_value, 2),
             "cost_basis": round(cost_basis, 2),
             "gain_loss": round(gain_loss, 2),
             "gain_loss_percent": round(gain_loss_percent, 2),
-            "day_change_percent": coin_price_data.get("usd_24h_change", 0)
+            "day_change_percent": coin_price_data.get("usd_24h_change", 0),
+            "original_currency": "USD",
+            "display_currency": display_currency
         })
     
     total_gain_loss = total_value - total_cost
@@ -1896,7 +1917,8 @@ async def get_crypto_portfolio_summary(current_user: dict = Depends(get_current_
         "total_gain_loss": round(total_gain_loss, 2),
         "total_gain_loss_percent": round(total_gain_loss_percent, 2),
         "holdings_count": len(holdings),
-        "holdings": holdings_with_prices
+        "holdings": holdings_with_prices,
+        "display_currency": display_currency
     }
 
 # ============ Price Alerts ============
