@@ -54,6 +54,7 @@ const COLORS = ["hsl(var(--primary))", "hsl(var(--warning))"];
 
 export default function Dashboard() {
   const { t } = useLanguage();
+  const { activePortfolio } = usePortfolio();
   const [stockSummary, setStockSummary] = useState(null);
   const [cryptoSummary, setCryptoSummary] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -75,8 +76,9 @@ export default function Dashboard() {
   const fetchSummary = useCallback(async (showRefresh = false) => {
     if (showRefresh) setRefreshing(true);
     try {
+      const portfolioId = activePortfolio?.id || null;
       const [stockRes, cryptoRes] = await Promise.all([
-        getPortfolioSummary(displayCurrency),
+        getPortfolioSummary(displayCurrency, portfolioId),
         getCryptoPortfolioSummary()
       ]);
       setStockSummary(stockRes.data);
@@ -87,7 +89,7 @@ export default function Dashboard() {
       setLoading(false);
       setRefreshing(false);
     }
-  }, [displayCurrency]);
+  }, [displayCurrency, activePortfolio]);
 
   useEffect(() => {
     fetchCurrencies();
