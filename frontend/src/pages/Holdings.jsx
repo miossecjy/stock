@@ -129,6 +129,7 @@ export default function Holdings() {
         shares: parseFloat(formData.shares),
         buy_price: parseFloat(formData.buy_price),
         buy_date: formData.buy_date || undefined,
+        portfolio_id: activePortfolio?.id,
       };
 
       if (editingHolding) {
