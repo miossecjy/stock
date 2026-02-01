@@ -397,7 +397,7 @@ export default function Holdings() {
             const values = calculateHoldingValues(holding);
             const isPositive = values.gainLoss >= 0;
             const exchange = getExchangeFromSymbol(holding.symbol);
-            const currencySymbol = getCurrencySymbol(holding.symbol);
+            const currencySymbol = getCurrencySymbol(values.currency);
             const exchangeColor = exchangeColors[exchange] || "bg-primary/10 text-primary border-primary/20";
 
             return (
