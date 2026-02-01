@@ -1,0 +1,79 @@
+{
+  "summary": "Bug fix verification complete. Both reported issues are now FIXED: 1) Holdings are correctly created with portfolio_id, 2) Dashboard Total Portfolio shows correct value (not $0.00). All 12 backend tests passed. E2E test confirmed: After adding AAPL (10 shares @ $150), Dashboard shows Total Portfolio $2,594.80, Stocks $2,594.80 with 1 holding, +72.99% gain, and allocation chart shows Stocks 100%.",
+  "backend_issues": {
+    "critical": [],
+    "minor": []
+  },
+  "frontend_issues": {
+    "ui_bugs": [],
+    "integration_issues": [],
+    "design_issues": [
+      {
+        "screen": "Dashboard charts",
+        "issues": ["Console warning about chart width/height being -1 - minor rendering issue that doesn't affect functionality"]
+      }
+    ]
+  },
+  "passed_tests": [
+    "Backend: Default portfolio created on user registration",
+    "Backend: Holdings created with portfolio_id",
+    "Backend: Holdings without portfolio_id use default portfolio",
+    "Backend: Holdings filtered by portfolio_id",
+    "Backend: Portfolio summary with portfolio_id returns correct data",
+    "Backend: Portfolio summary without portfolio_id returns all holdings",
+    "Backend: Holdings properly linked to portfolio",
+    "Backend: Specific portfolio summary endpoint works",
+    "Backend: CRUD operations for holdings (create, read, update, delete)",
+    "E2E: User registration creates default 'Main Portfolio'",
+    "E2E: Add holding via Holdings page with stock search",
+    "E2E: Holding linked to active portfolio (Main Portfolio)",
+    "E2E: Dashboard Total Portfolio shows correct value ($2,594.80 not $0.00)",
+    "E2E: Stocks card shows correct market value and holdings count",
+    "E2E: Portfolio Performance chart displays data",
+    "E2E: Allocation pie chart shows Stocks 100%",
+    "E2E: Stock Holdings section shows AAPL with correct values"
+  ],
+  "test_report_links": [
+    "/app/backend/tests/test_portfolio_holdings_bug.py",
+    "/app/test_reports/pytest/pytest_results.xml"
+  ],
+  "action_items": [],
+  "critical_code_review_comments": [],
+  "updated_files": [
+    "/app/backend/tests/test_portfolio_holdings_bug.py"
+  ],
+  "success_rate": {
+    "backend": "100% (12/12 tests passed)",
+    "frontend": "100% (all E2E tests passed)"
+  },
+  "test_credentials": {
+    "email": "test_e2e_75e5b609@test.com (and other auto-generated test users)",
+    "password": "Test123!"
+  },
+  "seed_data_creation": "Created multiple test users with AAPL holdings for verification",
+  "retest_needed": false,
+  "should_main_agent_self_test": false,
+  "context_for_next_testing_agent": "Bug fixes verified. Holdings.jsx now passes portfolio_id from usePortfolio hook when creating holdings. Dashboard.jsx now passes portfolio_id to getPortfolioSummary API. Backend /api/portfolio/summary endpoint filters by portfolio_id. All features working correctly.",
+  "verified_bug_fixes": {
+    "bug_1_total_stocks_not_showing": {
+      "status": "FIXED",
+      "root_cause": "Dashboard was not passing portfolio_id to getPortfolioSummary API",
+      "fix_applied": "Added usePortfolio hook and portfolio_id parameter to Dashboard.jsx",
+      "verification": "Total Portfolio now shows $2,594.80 after adding AAPL holding"
+    },
+    "bug_2_stocks_not_linked_to_portfolio": {
+      "status": "FIXED",
+      "root_cause": "Holdings were created without portfolio_id, causing them to not appear when filtered",
+      "fix_applied": "Added portfolio_id from activePortfolio to createHolding in Holdings.jsx",
+      "verification": "Holdings now have portfolio_id and appear correctly in filtered views"
+    }
+  },
+  "dashboard_verification": {
+    "total_portfolio": "$2,594.80",
+    "stocks_value": "$2,594.80",
+    "stocks_holdings_count": "1 holdings",
+    "gain_loss": "+$1,094.80 (+72.99%)",
+    "allocation": "Stocks 100%, Crypto 0%",
+    "chart_data": "Displaying correctly"
+  }
+}
