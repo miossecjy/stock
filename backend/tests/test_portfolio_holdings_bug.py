@@ -31,9 +31,9 @@ class TestPortfolioHoldingsBugFix:
             "name": "Portfolio Bug Test User"
         })
         
-        if register_response.status_code == 201:
+        if register_response.status_code in [200, 201]:
             data = register_response.json()
-            self.token = data.get("token")
+            self.token = data.get("access_token") or data.get("token")
             self.user_id = data.get("user", {}).get("id")
             self.session.headers.update({"Authorization": f"Bearer {self.token}"})
         else:
@@ -227,9 +227,9 @@ class TestHoldingsCRUD:
             "name": "CRUD Test User"
         })
         
-        if register_response.status_code == 201:
+        if register_response.status_code in [200, 201]:
             data = register_response.json()
-            self.token = data.get("token")
+            self.token = data.get("access_token") or data.get("token")
             self.session.headers.update({"Authorization": f"Bearer {self.token}"})
         else:
             pytest.skip(f"Failed to register: {register_response.text}")
