@@ -220,6 +220,9 @@ export default function Holdings() {
       holding.buy_price > 0
         ? ((currentPrice - holding.buy_price) / holding.buy_price) * 100
         : 0;
+    
+    // Get currency from quote API, fallback to symbol-based detection
+    const currency = quote.currency || getCurrencyFromSymbol(holding.symbol);
 
     return {
       currentPrice,
@@ -229,6 +232,7 @@ export default function Holdings() {
       gainLossPercent,
       dayChange: quote.change || 0,
       dayChangePercent: parseFloat(quote.change_percent) || 0,
+      currency,
     };
   };
 
