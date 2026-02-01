@@ -1510,9 +1510,12 @@ def get_popular_stocks(query: str = ""):
 # ============ Portfolio Summary ============
 
 @api_router.get("/portfolio/summary")
-async def get_portfolio_summary(current_user: dict = Depends(get_current_user), display_currency: str = "USD"):
+async def get_portfolio_summary(current_user: dict = Depends(get_current_user), display_currency: str = "USD", portfolio_id: str = None):
     """Get portfolio summary with optional currency conversion"""
-    holdings = await db.holdings.find({"user_id": current_user["id"]}, {"_id": 0}).to_list(1000)
+    query = {"user_id": current_user["id"]}
+    if portfolio_id:
+        query["portfolio_id"] = portfolio_id
+    holdings = await db.holdings.find(query, {"_id": 0}).to_list(1000)
     
     if not holdings:
         return {
