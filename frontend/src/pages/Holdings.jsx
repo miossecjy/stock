@@ -64,15 +64,29 @@ const getExchangeFromSymbol = (symbol) => {
   return "US";
 };
 
-const getCurrencySymbol = (symbol) => {
-  if (symbol.includes(".LON")) return "£";
-  if (symbol.includes(".SWX")) return "CHF ";
-  if (symbol.includes(".CPH")) return "kr ";
-  if (symbol.includes(".STO")) return "kr ";
-  if (symbol.includes(".OSL")) return "kr ";
+const getCurrencySymbol = (currency) => {
+  const symbols = {
+    "USD": "$",
+    "EUR": "€",
+    "GBP": "£",
+    "CHF": "CHF ",
+    "DKK": "kr ",
+    "SEK": "kr ",
+    "NOK": "kr ",
+  };
+  return symbols[currency] || "$";
+};
+
+// Legacy function for symbol-based currency detection (fallback)
+const getCurrencyFromSymbol = (symbol) => {
+  if (symbol.includes(".LON")) return "GBP";
+  if (symbol.includes(".SWX")) return "CHF";
+  if (symbol.includes(".CPH")) return "DKK";
+  if (symbol.includes(".STO")) return "SEK";
+  if (symbol.includes(".OSL")) return "NOK";
   if (symbol.includes(".DEX") || symbol.includes(".PAR") || symbol.includes(".AMS") || 
-      symbol.includes(".MIL") || symbol.includes(".MAD") || symbol.includes(".BRU")) return "€";
-  return "$";
+      symbol.includes(".MIL") || symbol.includes(".MAD") || symbol.includes(".BRU")) return "EUR";
+  return "USD";
 };
 
 export default function Holdings() {
