@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback } from "react";
 import { getHoldings, createHolding, updateHolding, deleteHolding, getMultipleQuotes } from "../lib/api";
 import { useLanguage } from "../context/LanguageContext";
+import { usePortfolio } from "../context/PortfolioContext";
 import { Card, CardContent, CardHeader, CardTitle } from "../components/ui/card";
 import { Button } from "../components/ui/button";
 import { Input } from "../components/ui/input";
