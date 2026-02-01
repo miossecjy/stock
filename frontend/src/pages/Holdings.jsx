@@ -69,12 +69,13 @@ const getCurrencySymbol = (currency) => {
     "USD": "$",
     "EUR": "€",
     "GBP": "£",
+    "GBp": "£",  // Yahoo Finance returns GBp for UK stocks (pence)
     "CHF": "CHF ",
     "DKK": "kr ",
     "SEK": "kr ",
     "NOK": "kr ",
   };
-  return symbols[currency] || "$";
+  return symbols[currency] || currency + " ";
 };
 
 // Legacy function for symbol-based currency detection (fallback)
