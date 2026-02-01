@@ -77,6 +77,7 @@ const getCurrencySymbol = (symbol) => {
 
 export default function Holdings() {
   const { t } = useLanguage();
+  const { activePortfolio } = usePortfolio();
   const [holdings, setHoldings] = useState([]);
   const [quotes, setQuotes] = useState({});
   const [loading, setLoading] = useState(true);
@@ -92,7 +93,8 @@ export default function Holdings() {
 
   const fetchHoldings = useCallback(async () => {
     try {
-      const response = await getHoldings();
+      const portfolioId = activePortfolio?.id || null;
+      const response = await getHoldings(portfolioId);
       setHoldings(response.data);
 
       // Fetch quotes for all holdings
