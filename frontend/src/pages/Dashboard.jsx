@@ -2,6 +2,7 @@ import { useState, useEffect, useCallback } from "react";
 import { Link } from "react-router-dom";
 import { getPortfolioSummary, getSupportedCurrencies, getCryptoPortfolioSummary } from "../lib/api";
 import { useLanguage } from "../context/LanguageContext";
+import { usePortfolio } from "../context/PortfolioContext";
 import { Card, CardContent, CardHeader, CardTitle } from "../components/ui/card";
 import { Button } from "../components/ui/button";
 import { Skeleton } from "../components/ui/skeleton";
