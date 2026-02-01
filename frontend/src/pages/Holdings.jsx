@@ -475,7 +475,7 @@ export default function Holdings() {
                             <ArrowDownRight className="w-4 h-4" />
                           )}
                           <span className="font-manrope font-semibold tabular-nums">
-                            {formatCurrency(Math.abs(values.gainLoss))}
+                            {currencySymbol}{Math.abs(values.gainLoss).toFixed(2)}
                           </span>
                         </div>
                         <p
