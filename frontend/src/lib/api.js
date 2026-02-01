@@ -60,7 +60,11 @@ export const addToCryptoWatchlist = (data) => axios.post(`${API}/crypto/watchlis
 export const removeFromCryptoWatchlist = (coinId) => axios.delete(`${API}/crypto/watchlist/${coinId}`);
 
 // Crypto Portfolio API
-export const getCryptoPortfolioSummary = () => axios.get(`${API}/crypto/portfolio/summary`);
+export const getCryptoPortfolioSummary = (displayCurrency = "USD", portfolioId = null) => {
+  let url = `${API}/crypto/portfolio/summary?display_currency=${displayCurrency}`;
+  if (portfolioId) url += `&portfolio_id=${portfolioId}`;
+  return axios.get(url);
+};
 
 // Price Alerts API
 export const getPriceAlerts = () => axios.get(`${API}/alerts`);
