@@ -1549,8 +1549,8 @@ async def get_portfolio_summary(current_user: dict = Depends(get_current_user), 
         gain_loss = market_value - cost_basis
         gain_loss_percent = ((current_price - holding["buy_price"]) / holding["buy_price"] * 100) if holding["buy_price"] > 0 else 0
         
-        # Get original currency and convert to display currency
-        original_currency = get_currency_from_symbol(holding["symbol"])
+        # Get original currency from quote API response, fallback to symbol-based detection
+        original_currency = quote.get("currency", get_currency_from_symbol(holding["symbol"]))
         
         # Convert to USD first (as base), then to display currency
         if original_currency != "USD":
