@@ -30,8 +30,11 @@ export const getMultipleQuotes = (symbols) => axios.get(`${API}/stocks/quotes?sy
 export const searchStocks = (query) => axios.get(`${API}/stocks/search?query=${query}`);
 
 // Portfolio Summary API
-export const getPortfolioSummary = (displayCurrency = "USD") => 
-  axios.get(`${API}/portfolio/summary?display_currency=${displayCurrency}`);
+export const getPortfolioSummary = (displayCurrency = "USD", portfolioId = null) => {
+  let url = `${API}/portfolio/summary?display_currency=${displayCurrency}`;
+  if (portfolioId) url += `&portfolio_id=${portfolioId}`;
+  return axios.get(url);
+};
 
 // Currency API
 export const getSupportedCurrencies = () => axios.get(`${API}/currencies`);
