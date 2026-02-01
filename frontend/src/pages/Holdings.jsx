@@ -109,7 +109,7 @@ export default function Holdings() {
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [activePortfolio]);
 
   useEffect(() => {
     fetchHoldings();
